@@ -341,15 +341,16 @@ const updateCartUI = () => {
 const addToCart = (productId, quantity = 1) => {
   const product = products.find((entry) => entry.id === productId);
   if (!product) return;
+  const normalizedQuantity = Math.max(1, Number.parseInt(quantity, 10) || 1);
   const existing = state.cart.find((item) => item.id === productId);
   if (existing) {
-    existing.quantity += quantity;
+    existing.quantity += normalizedQuantity;
   } else {
     state.cart.push({
       id: product.id,
       name: product.name,
       price: product.price,
-      quantity
+      quantity: normalizedQuantity
     });
   }
   saveCart();
@@ -569,14 +570,14 @@ const setupEvents = () => {
     setCheckoutOpen(!checkoutPanel.classList.contains('is-open'));
   });
 
-  floatingOrderButton.addEventListener('click', () => {
+  floatingOrderButton?.addEventListener('click', () => {
     document.getElementById('menu').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
   });
 
   window.addEventListener('scroll', () => {
     updateActiveNav();
     const heroBottom = document.getElementById('home').getBoundingClientRect().bottom;
-    floatingOrderButton.classList.toggle('is-visible', heroBottom < window.innerHeight * 0.4);
+    floatingOrderButton?.classList.toggle('is-visible', heroBottom < window.innerHeight * 0.4);
   }, { passive: true });
 
   window.addEventListener('resize', () => {
