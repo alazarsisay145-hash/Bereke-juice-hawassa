@@ -5,30 +5,31 @@ Official website for **Bereket Juice & Salad** (በረከት ፍሬሽ ጁስ �
 - 📞 +251 916 39 90 15
 - 🎵 TikTok: [@bereketjuice](https://www.tiktok.com/@bereketjuice)
 
+## Live site
+
+GitHub Pages URL: **https://alazarsisay145-hash.github.io/Bereke-juice-hawassa/**
+
 ## Tech
 
-Static site built with plain HTML, CSS and vanilla JavaScript, featuring a premium glassmorphism design with rich, accessible animations. Deployable directly to GitHub Pages.
+Static site built with plain HTML, CSS and vanilla JavaScript. The production site is served from the `docs/` folder for GitHub Pages.
 
 ## Project structure
 
 ```text
 .
-├── assets/
-│   ├── empty-cart.svg
-│   ├── fruit-slice.svg
-│   └── juice-glass.svg
-├── css/
-│   └── styles.css
-├── js/
-│   └── main.js
-├── index.html
+├── docs/
+│   ├── assets/
+│   ├── css/
+│   ├── js/
+│   ├── index.html
+│   └── .nojekyll
 └── README.md
 ```
 
 ## Features
 
-- Cinematic hero reveal with a short branded preloader
-- Premium glassmorphism UI with ambient motion and scroll-triggered reveals
+- Real shop-inspired storefront and evening visuals stored locally in `docs/assets/`
+- Compact responsive layout tuned for phone, tablet and desktop
 - Animated menu filtering across fresh juices, smoothies, shakes, burgers and fruit salads
 - Product quick-view modal with quantity selection and add-to-cart flow
 - Working cart drawer with localStorage persistence, quantity controls and checkout request form
@@ -38,9 +39,10 @@ Static site built with plain HTML, CSS and vanilla JavaScript, featuring a premi
 
 ## Local preview
 
-Because the project is static, you can open `index.html` directly in a browser or run a simple local server:
+Because the project is static, run a simple local server from the `docs/` folder:
 
 ```bash
+cd docs
 python3 -m http.server 8000
 ```
 
@@ -51,7 +53,19 @@ Then visit `http://localhost:8000`.
 1. Push the repository to GitHub.
 2. Open **Settings → Pages**.
 3. Under **Build and deployment**, choose **Deploy from a branch**.
-4. Select the branch that contains `index.html` (for example `main`) and choose `/ (root)`.
+4. Select the desired branch and choose the `/docs` folder.
 5. Save the settings and wait for GitHub Pages to publish the site.
 
 No build step is required.
+
+## Updating menu items
+
+- Edit `docs/js/main.js`.
+- Each product in the `products` array contains the displayed name, category, price and description.
+- Category placeholder art is mapped near the top of the file, so you can keep using local assets without third-party image hosts.
+
+## Updating shop photos
+
+- Replace `docs/assets/storefront-new.svg` and `docs/assets/shop-evening.svg` with newer local images if you have them.
+- Keep filenames the same to avoid changing HTML references, or update the paths in `docs/index.html`.
+- For best loading performance, keep replacement images reasonably compressed for the web.
