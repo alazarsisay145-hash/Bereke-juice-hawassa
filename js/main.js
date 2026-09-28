@@ -197,8 +197,18 @@ const setIndicator = (indicator, activeElement) => {
 const showToast = (message) => {
   toast.textContent = message;
   toast.classList.add('is-visible');
+  toast.setAttribute('aria-hidden', 'false');
   clearTimeout(state.toastTimer);
-  state.toastTimer = window.setTimeout(() => toast.classList.remove('is-visible'), 2400);
+  state.toastTimer = window.setTimeout(() => {
+    toast.classList.remove('is-visible');
+    toast.setAttribute('aria-hidden', 'true');
+  }, 2400);
+};
+
+const setCheckoutOpen = (isOpen) => {
+  checkoutPanel.classList.toggle('is-open', isOpen);
+  checkoutPanel.setAttribute('aria-hidden', String(!isOpen));
+  checkoutToggle.setAttribute('aria-expanded', String(isOpen));
 };
 
 const renderMenu = (withAnimation = false) => {
@@ -266,6 +276,9 @@ const updateCartUI = () => {
   cartEmpty.hidden = state.cart.length > 0;
   checkoutToggle.disabled = state.cart.length === 0;
   checkoutToggle.setAttribute('aria-disabled', String(state.cart.length === 0));
+  if (state.cart.length === 0) {
+    setCheckoutOpen(false);
+  }
   cartItems.replaceChildren();
 
   state.cart.forEach((item) => {
@@ -474,7 +487,7 @@ const setupForms = () => {
     saveCart();
     updateCartUI();
     checkoutForm.reset();
-    checkoutPanel.classList.remove('is-open');
+    setCheckoutOpen(false);
     showToast('Order request prepared successfully');
   });
 };
@@ -486,7 +499,7 @@ const setupEvents = () => {
       filterTabs.forEach((button) => {
         const active = button === tab;
         button.classList.toggle('active', active);
-        button.setAttribute('aria-selected', String(active));
+        button.setAttribute('aria-pressed', String(active));
       });
       setIndicator(filterIndicator, tab);
       renderMenu(true);
@@ -553,7 +566,7 @@ const setupEvents = () => {
       showToast('Add an item to open checkout');
       return;
     }
-    checkoutPanel.classList.toggle('is-open');
+    setCheckoutOpen(!checkoutPanel.classList.contains('is-open'));
   });
 
   floatingOrderButton.addEventListener('click', () => {
@@ -603,4 +616,8 @@ setupForms();
 setupEvents();
 updateActiveNav();
 setIndicator(filterIndicator, document.querySelector('.filter-tab.active'));
-window.addEventListener('load', initHeroReveal, { once: true });
+if (document.readyState === 'complete') {
+  initHeroReveal();
+} else {
+  window.addEventListener('load', initHeroReveal, { once: true });
+}
