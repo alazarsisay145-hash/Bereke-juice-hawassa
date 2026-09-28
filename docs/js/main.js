@@ -1,3 +1,11 @@
+const categoryImages = {
+  juices: 'assets/menu-juices.svg',
+  smoothies: 'assets/menu-smoothies.svg',
+  shakes: 'assets/menu-shakes.svg',
+  burgers: 'assets/menu-burgers.svg',
+  salads: 'assets/menu-salads.svg'
+};
+
 const products = [
   {
     id: 'mango-juice',
@@ -5,7 +13,7 @@ const products = [
     category: 'juices',
     label: 'Fresh Juices',
     price: 140,
-    image: 'https://images.unsplash.com/photo-1623065422902-30a2d299bbe4?auto=format&fit=crop&w=900&q=80',
+    image: categoryImages.juices,
     description: 'Sun-ripened mango blended into a bright, refreshing Hawassa classic.'
   },
   {
@@ -14,7 +22,7 @@ const products = [
     category: 'juices',
     label: 'Fresh Juices',
     price: 150,
-    image: 'https://images.unsplash.com/photo-1514996937319-344454492b37?auto=format&fit=crop&w=900&q=80',
+    image: categoryImages.juices,
     description: 'Creamy avocado finished with gentle sweetness and a silky texture.'
   },
   {
@@ -23,7 +31,7 @@ const products = [
     category: 'juices',
     label: 'Fresh Juices',
     price: 135,
-    image: 'https://images.unsplash.com/photo-1525382455947-f319bc05fb92?auto=format&fit=crop&w=900&q=80',
+    image: categoryImages.juices,
     description: 'Smooth papaya juice served chilled for a naturally mellow finish.'
   },
   {
@@ -32,7 +40,7 @@ const products = [
     category: 'juices',
     label: 'Fresh Juices',
     price: 185,
-    image: 'https://images.unsplash.com/photo-1502741338009-cac2772e18bc?auto=format&fit=crop&w=900&q=80',
+    image: categoryImages.juices,
     description: 'A layered blend of mango, avocado, papaya and milk for the full Bereket signature experience.'
   },
   {
@@ -41,7 +49,7 @@ const products = [
     category: 'smoothies',
     label: 'Smoothies',
     price: 170,
-    image: 'https://images.unsplash.com/photo-1553530666-ba11a90bb918?auto=format&fit=crop&w=900&q=80',
+    image: categoryImages.smoothies,
     description: 'Cold, creamy and packed with strawberry flavor for an easy anytime pick.'
   },
   {
@@ -50,7 +58,7 @@ const products = [
     category: 'smoothies',
     label: 'Smoothies',
     price: 175,
-    image: 'https://images.unsplash.com/photo-1638176066666-ffb2f013c7dd?auto=format&fit=crop&w=900&q=80',
+    image: categoryImages.smoothies,
     description: 'Mango, pineapple and banana blended smooth with a sunny finish.'
   },
   {
@@ -59,7 +67,7 @@ const products = [
     category: 'shakes',
     label: 'Shakes',
     price: 165,
-    image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=900&q=80',
+    image: categoryImages.shakes,
     description: 'Thick banana shake with a dessert-like creaminess and chilled sweetness.'
   },
   {
@@ -68,7 +76,7 @@ const products = [
     category: 'shakes',
     label: 'Shakes',
     price: 190,
-    image: 'https://images.unsplash.com/photo-1577805947697-89e18249d767?auto=format&fit=crop&w=900&q=80',
+    image: categoryImages.shakes,
     description: 'Cookies-and-cream shake topped with a rich finish and smooth body.'
   },
   {
@@ -77,7 +85,7 @@ const products = [
     category: 'burgers',
     label: 'Burgers',
     price: 260,
-    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=80',
+    image: categoryImages.burgers,
     description: 'Juicy chicken burger with crisp lettuce, fresh tomato and a soft toasted bun.'
   },
   {
@@ -86,7 +94,7 @@ const products = [
     category: 'burgers',
     label: 'Burgers',
     price: 285,
-    image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=900&q=80',
+    image: categoryImages.burgers,
     description: 'A satisfying beef burger layered with sauce, vegetables and bold flavor.'
   },
   {
@@ -95,7 +103,7 @@ const products = [
     category: 'salads',
     label: 'Fruit Salads',
     price: 155,
-    image: 'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?auto=format&fit=crop&w=900&q=80',
+    image: categoryImages.salads,
     description: 'A colorful bowl of cut seasonal fruits served fresh and chilled.'
   },
   {
@@ -104,7 +112,7 @@ const products = [
     category: 'salads',
     label: 'Fruit Salads',
     price: 180,
-    image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=80',
+    image: categoryImages.salads,
     description: 'A fuller fruit salad mix with layered color, texture and freshness.'
   }
 ];
@@ -233,6 +241,9 @@ const buildMenuCard = (product, isEntering = false) => {
   image.src = product.image;
   image.alt = `${product.name} at Bereket Juice & Salad`;
   image.loading = 'lazy';
+  image.decoding = 'async';
+  image.width = 900;
+  image.height = 675;
   media.append(image);
 
   const body = document.createElement('div');
@@ -502,7 +513,7 @@ const initHeroReveal = () => {
     window.setTimeout(() => preloader.remove(), 560);
   };
 
-  window.setTimeout(finishLoad, reduceMotion ? 0 : 900);
+  window.setTimeout(finishLoad, reduceMotion ? 0 : 420);
 };
 
 const setupForms = () => {
