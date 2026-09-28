@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-labelledby="title desc">
+  <title id="title">Oreo Shake placeholder illustration</title>
+  <desc id="desc">Illustrated placeholder for Oreo Shake at Bereket Juice &amp; Fruit Salad.</desc>
+  <rect width="800" height="600" fill="#FAFAF7"/>
+  <rect x="48" y="42" width="704" height="516" rx="36" fill="#FFFFFF" stroke="#ECE4D8" stroke-width="3"/>
+  <text x="94" y="120" fill="#1B1B1B" font-family="Arial, sans-serif" font-size="34" font-weight="700">Oreo Shake</text>
+  <text x="94" y="158" fill="#3E9E2E" font-family="Arial, sans-serif" font-size="24">Bereket Juice &amp; Fruit Salad</text>
+  <text x="94" y="510" fill="#5A5A52" font-family="Arial, sans-serif" font-size="24">Replace with a real menu photo anytime.</text>
+</svg>

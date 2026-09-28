@@ -1,7 +1,7 @@
 {
   "name": "bereke-juice-hawassa",
   "version": "1.0.0",
-  "description": "Official static website for **Bereket Juice & Salad** (በረከት ፍሬሽ ጁስ እና ሳላድ), a fresh juice, fruit salad, smoothie, shake and burger shop in Hawassa, Ethiopia.",
+  "description": "Official static website for Bereket Juice & Fruit Salad (\u1260\u1228\u12a8\u1275 \u134d\u122c\u123d \u1301\u1235 \u12a5\u1293 \u134d\u1229\u1275 \u1233\u120b\u12f5), a fresh juice, fruit salad, smoothie, shake and burger shop in Hawassa, Ethiopia.",
   "private": true,
   "directories": {
     "doc": "docs"
