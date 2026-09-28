@@ -1,10 +1,9 @@
-const categoryImages = {
-  juices: 'assets/menu-juices.svg',
-  smoothies: 'assets/menu-smoothies.svg',
-  shakes: 'assets/menu-shakes.svg',
-  burgers: 'assets/menu-burgers.svg',
-  salads: 'assets/menu-salads.svg'
-};
+const WHATSAPP_NUMBER = '251916399015'; // TODO: owner will replace
+
+const getMenuAsset = (slug) => ({
+  image: `assets/menu/${slug}.jpg`,
+  fallbackImage: `assets/menu/${slug}.svg`
+});
 
 const products = [
   {
@@ -13,7 +12,7 @@ const products = [
     category: 'juices',
     label: 'Fresh Juices',
     price: 140,
-    image: categoryImages.juices,
+    ...getMenuAsset('mango-juice'),
     description: 'Sun-ripened mango blended into a bright, refreshing Hawassa classic.'
   },
   {
@@ -22,7 +21,7 @@ const products = [
     category: 'juices',
     label: 'Fresh Juices',
     price: 150,
-    image: categoryImages.juices,
+    ...getMenuAsset('avocado-juice'),
     description: 'Creamy avocado finished with gentle sweetness and a silky texture.'
   },
   {
@@ -31,16 +30,16 @@ const products = [
     category: 'juices',
     label: 'Fresh Juices',
     price: 135,
-    image: categoryImages.juices,
+    ...getMenuAsset('papaya-juice'),
     description: 'Smooth papaya juice served chilled for a naturally mellow finish.'
   },
   {
     id: 'spris',
-    name: 'Spris Layered Juice',
+    name: 'Signature Spris',
     category: 'juices',
     label: 'Fresh Juices',
     price: 185,
-    image: categoryImages.juices,
+    ...getMenuAsset('spris'),
     description: 'A layered blend of mango, avocado, papaya and milk for the full Bereket signature experience.'
   },
   {
@@ -49,7 +48,7 @@ const products = [
     category: 'smoothies',
     label: 'Smoothies',
     price: 170,
-    image: categoryImages.smoothies,
+    ...getMenuAsset('strawberry-smoothie'),
     description: 'Cold, creamy and packed with strawberry flavor for an easy anytime pick.'
   },
   {
@@ -58,7 +57,7 @@ const products = [
     category: 'smoothies',
     label: 'Smoothies',
     price: 175,
-    image: categoryImages.smoothies,
+    ...getMenuAsset('tropical-smoothie'),
     description: 'Mango, pineapple and banana blended smooth with a sunny finish.'
   },
   {
@@ -67,7 +66,7 @@ const products = [
     category: 'shakes',
     label: 'Shakes',
     price: 165,
-    image: categoryImages.shakes,
+    ...getMenuAsset('banana-shake'),
     description: 'Thick banana shake with a dessert-like creaminess and chilled sweetness.'
   },
   {
@@ -76,7 +75,7 @@ const products = [
     category: 'shakes',
     label: 'Shakes',
     price: 190,
-    image: categoryImages.shakes,
+    ...getMenuAsset('oreo-shake'),
     description: 'Cookies-and-cream shake topped with a rich finish and smooth body.'
   },
   {
@@ -85,7 +84,7 @@ const products = [
     category: 'burgers',
     label: 'Burgers',
     price: 260,
-    image: categoryImages.burgers,
+    ...getMenuAsset('chicken-burger'),
     description: 'Juicy chicken burger with crisp lettuce, fresh tomato and a soft toasted bun.'
   },
   {
@@ -94,7 +93,7 @@ const products = [
     category: 'burgers',
     label: 'Burgers',
     price: 285,
-    image: categoryImages.burgers,
+    ...getMenuAsset('beef-burger'),
     description: 'A satisfying beef burger layered with sauce, vegetables and bold flavor.'
   },
   {
@@ -103,7 +102,7 @@ const products = [
     category: 'salads',
     label: 'Fruit Salads',
     price: 155,
-    image: categoryImages.salads,
+    ...getMenuAsset('fruit-salad'),
     description: 'A colorful bowl of cut seasonal fruits served fresh and chilled.'
   },
   {
@@ -112,7 +111,8 @@ const products = [
     category: 'salads',
     label: 'Fruit Salads',
     price: 180,
-    image: categoryImages.salads,
+    image: 'assets/menu/special-fruit-mix.jpg',
+    fallbackImage: 'assets/menu/special-fruit-mix.svg',
     description: 'A fuller fruit salad mix with layered color, texture and freshness.'
   }
 ];
@@ -146,6 +146,7 @@ const navToggle = document.querySelector('.nav-toggle');
 const closeMobileButton = document.querySelector('[data-close-mobile]');
 const floatingOrderButton = document.querySelector('.floating-order');
 const backToTopButton = document.querySelector('.back-to-top');
+const orderFlowButtons = Array.from(document.querySelectorAll('[data-open-order-flow]'));
 const productModal = document.getElementById('product-modal');
 const modalImage = document.getElementById('modal-image');
 const modalCategory = document.getElementById('modal-category');
@@ -164,16 +165,17 @@ const cartSubtotal = document.querySelector('[data-cart-subtotal]');
 const cartTotal = document.querySelector('[data-cart-total]');
 const cartCountNodes = document.querySelectorAll('[data-cart-count]');
 const checkoutToggle = document.querySelector('.cart-checkout-toggle');
-const notifyForm = document.querySelector('.notify-form');
 const checkoutForm = document.querySelector('form[data-checkout-form]');
-const preloader = document.querySelector('.preloader');
 const menuStatus = document.getElementById('menu-status');
+const whatsappLinks = Array.from(document.querySelectorAll('[data-whatsapp-link]'));
+const contactNumberNodes = Array.from(document.querySelectorAll('[data-contact-number]'));
+const telLinks = Array.from(document.querySelectorAll('[data-contact-link="tel"]'));
+const schemaScript = document.getElementById('restaurant-schema');
 const focusReturnTargets = {
   modal: null,
   cart: null,
   mobile: null
 };
-let heroRevealInitialized = false;
 
 const storage = {
   supported: (() => {
@@ -205,36 +207,6 @@ const storage = {
   }
 };
 
-const session = {
-  supported: (() => {
-    try {
-      const key = '__bereket_session_test__';
-      window.sessionStorage.setItem(key, key);
-      window.sessionStorage.removeItem(key);
-      return true;
-    } catch {
-      return false;
-    }
-  })(),
-  get(key) {
-    if (!this.supported) return null;
-    try {
-      return window.sessionStorage.getItem(key);
-    } catch {
-      return null;
-    }
-  },
-  set(key, value) {
-    if (!this.supported) return false;
-    try {
-      window.sessionStorage.setItem(key, value);
-      return true;
-    } catch {
-      return false;
-    }
-  }
-};
-
 const formatETB = (value) => `ETB ${value.toLocaleString()}`;
 const getActiveElement = () => document.activeElement instanceof HTMLElement ? document.activeElement : null;
 const focusElement = (node) => node?.focus?.();
@@ -244,6 +216,51 @@ const onNextFrame = (callback) => (typeof window.requestAnimationFrame === 'func
 
 const setText = (node, value) => {
   if (node) node.textContent = String(value ?? '');
+};
+
+const sanitizeDigits = (value) => String(value || '').replace(/\D+/g, '');
+const buildWhatsAppUrl = (message = '') => {
+  const base = `https://wa.me/${sanitizeDigits(WHATSAPP_NUMBER)}`;
+  return message ? `${base}?text=${encodeURIComponent(message)}` : base;
+};
+const formatContactNumber = () => {
+  const digits = sanitizeDigits(WHATSAPP_NUMBER);
+  const parts = digits.match(/^(\d{3})(\d{3})(\d{3})(\d+)$/);
+  return parts ? `+${parts[1]} ${parts[2]} ${parts[3]} ${parts[4]}` : `+${digits}`;
+};
+
+const setProductImage = (node, product, alt) => {
+  if (!node || !product) return;
+  node.onerror = () => {
+    node.onerror = null;
+    node.src = product.fallbackImage;
+  };
+  node.src = product.image;
+  node.alt = alt;
+};
+
+const hydrateContactLinks = () => {
+  const displayNumber = formatContactNumber();
+  const telHref = `tel:+${sanitizeDigits(WHATSAPP_NUMBER)}`;
+  const genericMessage = 'Hello Bereket Juice & Fruit Salad! 🍹';
+
+  whatsappLinks.forEach((link) => {
+    link.setAttribute('href', buildWhatsAppUrl(genericMessage));
+    link.setAttribute('target', '_blank');
+    link.setAttribute('rel', 'noopener noreferrer');
+  });
+  contactNumberNodes.forEach((node) => setText(node, displayNumber));
+  telLinks.forEach((link) => link.setAttribute('href', telHref));
+
+  if (!schemaScript) return;
+  try {
+    const schema = JSON.parse(schemaScript.textContent || '{}');
+    schema.telephone = displayNumber;
+    schema.sameAs = Array.from(new Set([...(schema.sameAs || []), buildWhatsAppUrl()]));
+    schemaScript.textContent = JSON.stringify(schema, null, 2);
+  } catch {
+    // Leave existing schema untouched if parsing fails.
+  }
 };
 
 const syncCartTriggerLabel = (count) => {
@@ -282,7 +299,7 @@ const showToast = (message) => {
   state.toastTimer = window.setTimeout(() => {
     toast.classList.remove('is-visible');
     toast.setAttribute('aria-hidden', 'true');
-  }, 2400);
+  }, 2600);
 };
 
 const saveCart = () => {
@@ -331,12 +348,11 @@ const buildMenuCard = (product, isEntering = false) => {
   media.className = 'menu-card__media';
 
   const image = document.createElement('img');
-  image.src = product.image;
-  image.alt = `${product.name} at Bereket Juice & Salad`;
   image.loading = 'lazy';
   image.decoding = 'async';
   image.width = 900;
   image.height = 675;
+  setProductImage(image, product, `${product.name} at Bereket Juice & Fruit Salad`);
   media.append(image);
 
   const body = document.createElement('div');
@@ -457,14 +473,26 @@ const updateCartUI = () => {
   cartItems.replaceChildren();
 
   state.cart.forEach((item) => {
+    const product = getProduct(item.id);
     const line = document.createElement('article');
     line.className = 'cart-line';
 
+    const media = document.createElement('div');
+    media.className = 'cart-line__media';
+    const image = document.createElement('img');
+    image.width = 120;
+    image.height = 90;
+    image.loading = 'lazy';
+    image.decoding = 'async';
+    setProductImage(image, product, `${item.name} in cart`);
+    media.append(image);
+
     const details = document.createElement('div');
+    details.className = 'cart-line__details';
     const title = document.createElement('strong');
     title.textContent = item.name;
     const unitPrice = document.createElement('small');
-    unitPrice.textContent = formatETB(item.price);
+    unitPrice.textContent = `${formatETB(item.price)} each`;
 
     const controls = document.createElement('div');
     controls.className = 'cart-line__controls';
@@ -501,9 +529,10 @@ const updateCartUI = () => {
     details.append(title, unitPrice, controls);
 
     const lineTotal = document.createElement('strong');
+    lineTotal.className = 'cart-line__total';
     lineTotal.textContent = formatETB(item.price * item.quantity);
 
-    line.append(details, lineTotal);
+    line.append(media, details, lineTotal);
     cartItems.append(line);
   });
 
@@ -511,7 +540,7 @@ const updateCartUI = () => {
     checkoutSummary,
     state.cart.length
       ? `${totalCount} item${totalCount > 1 ? 's' : ''} • Total: ${formatETB(subtotal)}`
-      : 'Add items to see your pickup summary here.'
+      : 'Add items to see your WhatsApp order summary here.'
   );
 };
 
@@ -551,8 +580,7 @@ const openProductModal = (productId, trigger) => {
   closeOtherPanels(productModal);
   focusReturnTargets.modal = trigger || getActiveElement();
 
-  modalImage.src = product.image;
-  modalImage.alt = `${product.name} close-up`;
+  setProductImage(modalImage, product, `${product.name} close-up`);
   setText(modalCategory, product.label);
   setText(modalTitle, product.name);
   setText(modalDescription, product.description);
@@ -610,7 +638,7 @@ const togglePanel = (panel, overlay, trigger, focusKey, open) => {
 
   if (shouldOpen) {
     focusReturnTargets[focusKey] = trigger || getActiveElement();
-    focusElement(panel.querySelector('button, a, input, [tabindex]:not([tabindex="-1"])'));
+    focusElement(panel.querySelector('button, a, input, textarea, [tabindex]:not([tabindex="-1"])'));
   } else {
     focusElement(focusReturnTargets[focusKey]);
   }
@@ -626,7 +654,7 @@ const trapFocus = (event) => {
   if (!openDialog || event.key !== 'Tab') return;
 
   const focusable = Array.from(
-    openDialog.querySelectorAll('button, a, input, [tabindex]:not([tabindex="-1"])')
+    openDialog.querySelectorAll('button, a, input, textarea, [tabindex]:not([tabindex="-1"])')
   ).filter((node) => !node.hasAttribute('disabled') && !node.getAttribute('aria-hidden'));
 
   if (!focusable.length) return;
@@ -704,75 +732,70 @@ const setupRevealAnimations = () => {
   revealNodes.forEach((node) => observer.observe(node));
 };
 
-const initHeroReveal = () => {
-  if (heroRevealInitialized) return;
-  heroRevealInitialized = true;
-  const repeatVisit = session.get('bereket-visited') === 'true';
-
-  const finishLoad = () => {
-    document.body.classList.add('loaded');
-    if (preloader) {
-      preloader.classList.add('is-hidden');
-      window.setTimeout(() => preloader.remove(), repeatVisit || reduceMotion ? 0 : 420);
-    }
-    session.set('bereket-visited', 'true');
-  };
-
-  if (repeatVisit || reduceMotion || !preloader) {
-    finishLoad();
+const startOrderFlow = () => {
+  if (state.cart.length === 0) {
+    scrollToTarget('#menu');
+    showToast('Add menu items first, then send your order on WhatsApp.');
     return;
   }
 
-  const revealHero = () => window.setTimeout(finishLoad, 420);
-  if (document.readyState === 'complete') {
-    revealHero();
-  } else {
-    window.addEventListener('load', revealHero, { once: true });
-  }
+  togglePanel(cartDrawer, cartOverlay, cartTrigger, 'cart', true);
+  setCheckoutOpen(true);
+  focusElement(checkoutForm?.elements?.name);
+};
+
+const buildOrderMessage = ({ name, pickupTime, note }) => {
+  const lines = state.cart.map((item) => `${item.quantity} × ${item.name} — ${formatETB(item.quantity * item.price)}`);
+  const total = state.cart.reduce((sum, item) => sum + item.quantity * item.price, 0);
+  return [
+    'Hello Bereket Juice & Fruit Salad! 🍹',
+    "I'd like to order:",
+    ...lines,
+    `Total: ${formatETB(total)}`,
+    `Name: ${name}`,
+    `Pickup time: ${pickupTime || 'Not specified'}`,
+    `Note: ${note || 'None'}`
+  ].join('\n');
 };
 
 const setupForms = () => {
-  notifyForm?.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const feedback = notifyForm.querySelector('.form-feedback');
-    const emailValue = notifyForm.elements?.email?.value?.trim?.() || '';
-    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue);
-    if (!feedback) return;
-
-    feedback.className = 'form-feedback';
-    if (!valid) {
-      setText(feedback, 'Please enter a valid email to join the guest house notify list.');
-      feedback.classList.add('is-error');
-      return;
-    }
-
-    setText(feedback, 'You’re on the list — we’ll notify you when Bereket Guest House opens.');
-    feedback.classList.add('is-success');
-    notifyForm.reset();
-  });
-
   checkoutForm?.addEventListener('submit', (event) => {
     event.preventDefault();
     const feedback = checkoutForm.querySelector('.form-feedback');
     const name = checkoutForm.elements?.name?.value?.trim?.() || '';
-    const phone = checkoutForm.elements?.phone?.value?.trim?.() || '';
+    const pickupTime = checkoutForm.elements?.pickupTime?.value?.trim?.() || '';
+    const note = checkoutForm.elements?.note?.value?.trim?.() || '';
     if (!feedback) return;
 
     feedback.className = 'form-feedback';
-    if (!name || phone.length < 8 || state.cart.length === 0) {
-      setText(feedback, 'Please add items and enter your name and phone to prepare your pickup details.');
+    if (!name || state.cart.length === 0) {
+      setText(feedback, 'Please add items and enter your name before sending your order to WhatsApp.');
       feedback.classList.add('is-error');
       return;
     }
 
-    setText(feedback, `Thanks ${name}! Your pickup details are prepared locally — please call ${phone} or the shop number to confirm pickup.`);
+    if (typeof window.open !== 'function') {
+      setText(feedback, 'WhatsApp could not be opened in this browser.');
+      feedback.classList.add('is-error');
+      return;
+    }
+
+    const message = buildOrderMessage({ name, pickupTime, note });
+    const openedWindow = window.open(buildWhatsAppUrl(message), '_blank');
+    if (openedWindow === null) {
+      setText(feedback, 'Please allow pop-ups so WhatsApp can open with your order.');
+      feedback.classList.add('is-error');
+      return;
+    }
+
+    setText(feedback, `Thanks ${name}! WhatsApp opened with your order draft.`);
     feedback.classList.add('is-success');
     state.cart = [];
     saveCart();
     updateCartUI();
     checkoutForm.reset();
     setCheckoutOpen(false);
-    showToast('Order request prepared successfully');
+    showToast('Order opened in WhatsApp');
   });
 };
 
@@ -875,13 +898,17 @@ const setupEvents = () => {
   checkoutToggle?.addEventListener('click', () => {
     if (!checkoutPanel) return;
     if (state.cart.length === 0) {
-      showToast('Add an item to open checkout');
+      showToast('Add an item to start your WhatsApp order');
       return;
     }
     setCheckoutOpen(!checkoutPanel.classList.contains('is-open'));
+    if (!checkoutPanel.inert) focusElement(checkoutForm?.elements?.name);
   });
 
-  floatingOrderButton?.addEventListener('click', () => scrollToTarget('#menu'));
+  orderFlowButtons.forEach((button) => {
+    button.addEventListener('click', startOrderFlow);
+  });
+
   backToTopButton?.addEventListener('click', () => scrollToTarget('#top'));
 
   window.addEventListener('scroll', () => {
@@ -906,6 +933,7 @@ const setupEvents = () => {
 };
 
 loadCart();
+hydrateContactLinks();
 renderMenu();
 updateCartUI();
 setupRevealAnimations();
@@ -916,4 +944,4 @@ updateActiveNav();
 setIndicator(filterIndicator, document.querySelector('.filter-tab.active'));
 setIndicator(navIndicator, document.querySelector('.nav-link.active'));
 syncFloatingButtons();
-initHeroReveal();
+document.body.classList.add('loaded');

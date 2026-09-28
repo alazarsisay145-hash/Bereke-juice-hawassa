@@ -14,8 +14,7 @@ const click = (window, node) => {
 };
 
 async function bootApp({
-  localStorage = {},
-  sessionStorage = { 'bereket-visited': 'true' }
+  localStorage = {}
 } = {}) {
   const dom = new JSDOM(html, {
     url: 'https://alazarsisay145-hash.github.io/Bereke-juice-hawassa/',
@@ -26,6 +25,7 @@ async function bootApp({
   const { window } = dom;
   const errors = [];
   const originalError = window.console.error.bind(window.console);
+  const openCalls = [];
 
   window.console.error = (...args) => {
     errors.push(args.join(' '));
@@ -54,6 +54,10 @@ async function bootApp({
 
     disconnect() {}
   };
+  window.open = (url, target) => {
+    openCalls.push({ url, target });
+    return { closed: false };
+  };
 
   if (!window.HTMLElement.prototype.scrollIntoView) {
     window.HTMLElement.prototype.scrollIntoView = function scrollIntoView() {};
@@ -62,18 +66,15 @@ async function bootApp({
   Object.entries(localStorage).forEach(([key, value]) => {
     window.localStorage.setItem(key, value);
   });
-  Object.entries(sessionStorage).forEach(([key, value]) => {
-    window.sessionStorage.setItem(key, value);
-  });
 
   window.eval(script);
-  window.dispatchEvent(new window.Event('load'));
   await wait(30);
 
   return {
     window,
     document: window.document,
     errors,
+    openCalls,
     close() {
       dom.window.close();
     }
@@ -186,10 +187,59 @@ async function testAddDecrementRemoveAndOverlayExclusivity() {
   }
 }
 
+async function testWhatsAppCheckoutFlow() {
+  const app = await bootApp();
+
+  try {
+    const { window, document, openCalls } = app;
+    click(window, document.querySelector('[data-add-direct="mango-juice"]'));
+    click(window, document.querySelector('[data-add-direct="chicken-burger"]'));
+    await wait(20);
+
+    click(window, document.querySelector('[data-open-order-flow]'));
+    await wait(20);
+
+    assert.equal(document.getElementById('cart-drawer').classList.contains('is-open'), true, 'order CTA opens cart');
+    assert.equal(document.getElementById('checkout-panel').classList.contains('is-open'), true, 'order CTA opens checkout');
+
+    document.querySelector('[name="name"]').value = 'Alazar';
+    document.querySelector('[name="pickupTime"]').value = '6:30 PM';
+    document.querySelector('[name="note"]').value = 'No ice';
+    document.querySelector('[data-checkout-form]').dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }));
+    await wait(20);
+
+    assert.equal(openCalls.length, 1, 'checkout opens WhatsApp exactly once');
+    assert.match(openCalls[0].url, /^https:\/\/wa\.me\/251916399015\?text=/, 'checkout uses configured WhatsApp URL');
+    assert.match(decodeURIComponent(openCalls[0].url), /Name: Alazar/, 'checkout message includes customer name');
+    assert.match(decodeURIComponent(openCalls[0].url), /Pickup time: 6:30 PM/, 'checkout message includes pickup time');
+    assert.match(decodeURIComponent(openCalls[0].url), /Note: No ice/, 'checkout message includes note');
+    assert.equal(document.querySelector('[data-cart-count]').textContent.trim(), '0', 'cart clears after WhatsApp opens');
+    assert.match(document.getElementById('toast').textContent, /WhatsApp/i, 'checkout shows WhatsApp confirmation toast');
+  } finally {
+    app.close();
+  }
+}
+
+async function testHydratedContactLinks() {
+  const app = await bootApp();
+
+  try {
+    const { document } = app;
+    const whatsappLink = document.querySelector('[data-whatsapp-link]');
+    const numberNode = document.querySelector('[data-contact-number]');
+    assert.match(whatsappLink.href, /wa\.me\/251916399015/, 'WhatsApp links are hydrated from the config constant');
+    assert.match(numberNode.textContent, /\+251/, 'displayed contact number is hydrated from the same config');
+  } finally {
+    app.close();
+  }
+}
+
 async function main() {
   await testValidPersistedCart();
   await testInvalidPersistedCart();
   await testAddDecrementRemoveAndOverlayExclusivity();
+  await testWhatsAppCheckoutFlow();
+  await testHydratedContactLinks();
   console.log('Smoke test passed.');
 }
 
