@@ -209,7 +209,6 @@ const showToast = (message) => {
 const setCheckoutOpen = (isOpen) => {
   checkoutPanel.classList.toggle('is-open', isOpen);
   checkoutPanel.setAttribute('aria-hidden', String(!isOpen));
-  checkoutPanel.hidden = !isOpen;
   checkoutPanel.inert = !isOpen;
   checkoutToggle.setAttribute('aria-expanded', String(isOpen));
 };
@@ -449,8 +448,9 @@ const setupRevealAnimations = () => {
 
 const initHeroReveal = () => {
   const finishLoad = () => {
-    preloader.classList.add('is-hidden');
     document.body.classList.add('loaded');
+    if (!preloader) return;
+    preloader.classList.add('is-hidden');
     window.setTimeout(() => preloader.remove(), 560);
   };
 

@@ -8,7 +8,7 @@
       name="description"
       content="Bereket Juice & Salad in Hawassa, Ethiopia — fresh juices, smoothies, shakes, fruit salads and burgers with a premium ordering experience."
     />
-    <link rel="preconnect" href="https://images.unsplash.com" />
+    <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -313,7 +313,7 @@
         </div>
         <button class="button button--primary cart-checkout-toggle" type="button" aria-expanded="false" aria-controls="checkout-panel">Proceed to Checkout</button>
       </div>
-      <form class="checkout-panel" id="checkout-panel" novalidate aria-hidden="true">
+      <form class="checkout-panel" id="checkout-panel" novalidate aria-hidden="true" inert>
         <h3>Checkout</h3>
         <label>
           Name
