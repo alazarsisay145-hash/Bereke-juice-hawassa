@@ -163,7 +163,18 @@ const loadCart = () => {
   try {
     const saved = JSON.parse(localStorage.getItem('bereket-cart') || '[]');
     if (Array.isArray(saved)) {
-      state.cart = saved.filter((item) => item && item.id && Number.isFinite(item.quantity));
+      state.cart = saved.reduce((items, entry) => {
+        const product = products.find((item) => item.id === entry?.id);
+        const quantity = Number.parseInt(entry?.quantity, 10);
+        if (!product || !Number.isFinite(quantity) || quantity < 1) return items;
+        items.push({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          quantity
+        });
+        return items;
+      }, []);
     }
   } catch {
     state.cart = [];
@@ -255,28 +266,63 @@ const updateCartUI = () => {
   cartEmpty.hidden = state.cart.length > 0;
   checkoutToggle.disabled = state.cart.length === 0;
   checkoutToggle.setAttribute('aria-disabled', String(state.cart.length === 0));
+  cartItems.replaceChildren();
 
-  cartItems.innerHTML = state.cart.map((item) => `
-    <article class="cart-line">
-      <div>
-        <strong>${item.name}</strong>
-        <small>${formatETB(item.price)}</small>
-        <div class="cart-line__controls">
-          <div class="quantity-selector" aria-label="Adjust quantity for ${item.name}">
-            <button type="button" data-cart-qty="decrease" data-id="${item.id}" aria-label="Decrease ${item.name}">−</button>
-            <span>${item.quantity}</span>
-            <button type="button" data-cart-qty="increase" data-id="${item.id}" aria-label="Increase ${item.name}">+</button>
-          </div>
-          <button type="button" class="order-mini" data-remove-item="${item.id}">Remove</button>
-        </div>
-      </div>
-      <strong>${formatETB(item.price * item.quantity)}</strong>
-    </article>
-  `).join('');
+  state.cart.forEach((item) => {
+    const line = document.createElement('article');
+    line.className = 'cart-line';
 
-  checkoutSummary.innerHTML = state.cart.length
-    ? `<strong>${totalCount} item${totalCount > 1 ? 's' : ''}</strong><br />Total: ${formatETB(subtotal)}`
-    : 'Add items to see your order summary here.';
+    const details = document.createElement('div');
+    const title = document.createElement('strong');
+    title.textContent = item.name;
+    const unitPrice = document.createElement('small');
+    unitPrice.textContent = formatETB(item.price);
+
+    const controls = document.createElement('div');
+    controls.className = 'cart-line__controls';
+
+    const quantitySelector = document.createElement('div');
+    quantitySelector.className = 'quantity-selector';
+    quantitySelector.setAttribute('aria-label', `Adjust quantity for ${item.name}`);
+
+    const decrease = document.createElement('button');
+    decrease.type = 'button';
+    decrease.dataset.cartQty = 'decrease';
+    decrease.dataset.id = item.id;
+    decrease.setAttribute('aria-label', `Decrease ${item.name}`);
+    decrease.textContent = '−';
+
+    const amount = document.createElement('span');
+    amount.textContent = String(item.quantity);
+
+    const increase = document.createElement('button');
+    increase.type = 'button';
+    increase.dataset.cartQty = 'increase';
+    increase.dataset.id = item.id;
+    increase.setAttribute('aria-label', `Increase ${item.name}`);
+    increase.textContent = '+';
+
+    quantitySelector.append(decrease, amount, increase);
+
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'order-mini';
+    remove.dataset.removeItem = item.id;
+    remove.textContent = 'Remove';
+
+    controls.append(quantitySelector, remove);
+    details.append(title, unitPrice, controls);
+
+    const lineTotal = document.createElement('strong');
+    lineTotal.textContent = formatETB(item.price * item.quantity);
+
+    line.append(details, lineTotal);
+    cartItems.append(line);
+  });
+
+  checkoutSummary.textContent = state.cart.length
+    ? `${totalCount} item${totalCount > 1 ? 's' : ''} • Total: ${formatETB(subtotal)}`
+    : 'Add items to see your pickup summary here.';
 };
 
 const addToCart = (productId, quantity = 1) => {
@@ -418,11 +464,11 @@ const setupForms = () => {
     const phone = checkoutForm.elements.phone.value.trim();
     feedback.className = 'form-feedback';
     if (!name || phone.length < 8 || state.cart.length === 0) {
-      feedback.textContent = 'Please add items and enter your name and phone to continue.';
+      feedback.textContent = 'Please add items and enter your name and phone to prepare your pickup details.';
       feedback.classList.add('is-error');
       return;
     }
-    feedback.textContent = `Thanks ${name}! Your request is ready — call ${phone} or use the shop number to confirm pickup.`;
+    feedback.textContent = `Thanks ${name}! Your pickup details are prepared locally — please call ${phone} or the shop number to confirm pickup.`;
     feedback.classList.add('is-success');
     state.cart = [];
     saveCart();
