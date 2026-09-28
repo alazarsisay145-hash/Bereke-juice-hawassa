@@ -212,7 +212,7 @@ function renderMenu() {
     const button = document.createElement('button');
     button.className = 'button button--primary card__button';
     button.type = 'button';
-    button.dataset.openProduct = item.id;
+    button.setAttribute('data-open-product', item.id);
     button.textContent = 'Order now';
     footer.append(button);
 
@@ -250,7 +250,7 @@ function openModal(itemId, trigger = document.activeElement) {
   lastModalTrigger = trigger instanceof HTMLElement ? trigger : null;
   state.modalItem = item;
   state.modalQuantity = 1;
-  modalImage.src = item.image;
+  modalImage.src = safeImageUrl(item.image);
   modalImage.alt = `${item.name} served at Bereket Juice & Salad`;
   modalTitle.textContent = item.name;
   modalCategory.textContent = item.category;
@@ -379,7 +379,7 @@ function renderCart() {
     const removeButton = document.createElement('button');
     removeButton.className = 'icon-button';
     removeButton.type = 'button';
-    removeButton.dataset.removeItem = item.id;
+    removeButton.setAttribute('data-remove-item', item.id);
     removeButton.setAttribute('aria-label', `Remove ${item.name}`);
     removeButton.textContent = '✕';
     top.append(titleWrap, removeButton);
@@ -390,16 +390,16 @@ function renderCart() {
     quantitySelector.className = 'quantity-selector';
     const decrement = document.createElement('button');
     decrement.type = 'button';
-    decrement.dataset.cartQty = '-1';
-    decrement.dataset.itemId = item.id;
+    decrement.setAttribute('data-cart-qty', '-1');
+    decrement.setAttribute('data-item-id', item.id);
     decrement.setAttribute('aria-label', `Decrease ${item.name} quantity`);
     decrement.textContent = '−';
     const quantity = document.createElement('span');
     quantity.textContent = String(item.quantity);
     const increment = document.createElement('button');
     increment.type = 'button';
-    increment.dataset.cartQty = '1';
-    increment.dataset.itemId = item.id;
+    increment.setAttribute('data-cart-qty', '1');
+    increment.setAttribute('data-item-id', item.id);
     increment.setAttribute('aria-label', `Increase ${item.name} quantity`);
     increment.textContent = '+';
     quantitySelector.append(decrement, quantity, increment);
@@ -542,6 +542,7 @@ function initEvents() {
         button.tabIndex = isActive ? 0 : -1;
       });
       state.activeCategory = tab.dataset.category;
+      menuGrid.setAttribute('aria-labelledby', tab.id);
       updateIndicator(tabs, tabIndicator);
       renderMenu();
     });
@@ -561,7 +562,7 @@ function initEvents() {
     if (!(target instanceof HTMLElement)) return;
     const trigger = target.closest('[data-open-product]');
     if (trigger instanceof HTMLElement) {
-      openModal(trigger.dataset.openProduct, trigger);
+      openModal(trigger.getAttribute('data-open-product'), trigger);
     }
   });
 
@@ -592,10 +593,10 @@ function initEvents() {
     const qtyTrigger = target.closest('[data-cart-qty]');
     const removeTrigger = target.closest('[data-remove-item]');
     if (qtyTrigger instanceof HTMLElement) {
-      updateCartItem(qtyTrigger.dataset.itemId, Number(qtyTrigger.dataset.cartQty));
+      updateCartItem(qtyTrigger.getAttribute('data-item-id'), Number(qtyTrigger.getAttribute('data-cart-qty')));
     }
     if (removeTrigger instanceof HTMLElement) {
-      removeCartItem(removeTrigger.dataset.removeItem);
+      removeCartItem(removeTrigger.getAttribute('data-remove-item'));
     }
   });
 

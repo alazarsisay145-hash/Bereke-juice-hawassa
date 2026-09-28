@@ -974,7 +974,6 @@ body.is-ready .hero__visual { animation: revealUp 800ms 340ms forwards; }
   opacity: 1;
 }
 
-.cart-drawer,
 .product-modal {
   position: fixed;
   inset: 0;
@@ -985,8 +984,15 @@ body.is-ready .hero__visual { animation: revealUp 800ms 340ms forwards; }
 }
 
 .cart-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
   width: min(28rem, 100%);
-  margin-left: auto;
+  z-index: 40;
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: none;
   padding: 1rem;
   flex-direction: column;
   gap: 1rem;
