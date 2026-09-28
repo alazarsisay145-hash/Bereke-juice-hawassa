@@ -1,17 +1,17 @@
 :root {
-  --bg: #080808;
-  --bg-soft: #121212;
-  --surface: rgba(255, 255, 255, 0.09);
-  --surface-strong: rgba(255, 255, 255, 0.14);
-  --border: rgba(255, 255, 255, 0.16);
-  --text: #f9f7f0;
-  --muted: rgba(249, 247, 240, 0.72);
-  --gold: #f5c518;
-  --orange: #f28c28;
-  --green: #65b741;
-  --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
-  --radius: 18px;
-  --radius-sm: 12px;
+  --bg: #120d09;
+  --bg-soft: #1a1511;
+  --surface: rgba(255, 248, 239, 0.1);
+  --surface-strong: rgba(255, 248, 239, 0.16);
+  --border: rgba(255, 244, 228, 0.18);
+  --text: #fff9f1;
+  --muted: rgba(255, 247, 235, 0.78);
+  --gold: #f5c15d;
+  --orange: #ed8d31;
+  --green: #71bc59;
+  --shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+  --radius: 22px;
+  --radius-sm: 14px;
   --container: min(1120px, calc(100vw - 2rem));
   --nav-height: 60px;
   --transition: 300ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -1446,22 +1446,6 @@ body.loaded .hero__visual {
     opacity: 1;
     transform: none;
   }
-}
-
-:root {
-  --bg: #120d09;
-  --bg-soft: #1a1511;
-  --surface: rgba(255, 248, 239, 0.1);
-  --surface-strong: rgba(255, 248, 239, 0.16);
-  --border: rgba(255, 244, 228, 0.18);
-  --text: #fff9f1;
-  --muted: rgba(255, 247, 235, 0.78);
-  --gold: #f5c15d;
-  --orange: #ed8d31;
-  --green: #71bc59;
-  --shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
-  --radius: 22px;
-  --radius-sm: 14px;
 }
 
 body {

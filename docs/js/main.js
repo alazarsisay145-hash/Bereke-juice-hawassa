@@ -756,6 +756,7 @@ const setupEvents = () => {
   });
 
   menuGrid?.addEventListener('click', (event) => {
+    if (!(event.target instanceof Element)) return;
     const modalButton = event.target.closest('[data-open-product]');
     const addButton = event.target.closest('[data-add-direct]');
     if (modalButton) {
@@ -772,6 +773,7 @@ const setupEvents = () => {
   });
 
   productModal?.addEventListener('click', (event) => {
+    if (!(event.target instanceof Element)) return;
     if (event.target === productModal || event.target.closest('[data-close-modal]')) {
       closeProductModal();
     }
@@ -784,6 +786,7 @@ const setupEvents = () => {
   });
 
   cartItems?.addEventListener('click', (event) => {
+    if (!(event.target instanceof Element)) return;
     const removeButton = event.target.closest('[data-remove-item]');
     const quantityButton = event.target.closest('[data-cart-qty]');
 
