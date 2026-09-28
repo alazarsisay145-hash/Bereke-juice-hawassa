@@ -139,6 +139,7 @@ const year = document.querySelector('#year');
 
 let toastTimer = null;
 let releaseFocusTrap = null;
+let lastModalTrigger = null;
 
 function loadCart() {
   try {
@@ -194,7 +195,7 @@ function renderMenu() {
 function updateIndicator(buttons, indicator) {
   const active = buttons.find((button) => button.classList.contains('is-active'));
   if (!active || !indicator) return;
-    const parent = indicator.parentElement || active.parentElement;
+  const parent = indicator.parentElement || active.parentElement;
   const parentRect = parent.getBoundingClientRect();
   const rect = active.getBoundingClientRect();
   indicator.style.opacity = '1';
@@ -203,9 +204,11 @@ function updateIndicator(buttons, indicator) {
   indicator.style.transform = `translate(${rect.left - parentRect.left}px, ${rect.top - parentRect.top}px)`;
 }
 
-function openModal(itemId) {
+function openModal(itemId, trigger = document.activeElement) {
+  if (cartDrawer.classList.contains('is-open')) closeCart({ restoreFocus: false });
   const item = menuItems.find((entry) => entry.id === itemId);
   if (!item) return;
+  lastModalTrigger = trigger instanceof HTMLElement ? trigger : null;
   state.modalItem = item;
   state.modalQuantity = 1;
   modalImage.src = item.image;
@@ -223,13 +226,16 @@ function openModal(itemId) {
   modal.focus();
 }
 
-function closeModal() {
+function closeModal({ restoreFocus = true } = {}) {
   modal.setAttribute('aria-hidden', 'true');
   modal.classList.remove('is-open');
   cleanupOverlay();
+  if (restoreFocus && lastModalTrigger) lastModalTrigger.focus();
+  lastModalTrigger = null;
 }
 
 function openCart() {
+  if (modal.classList.contains('is-open')) closeModal({ restoreFocus: false });
   cartDrawer.classList.add('is-open');
   cartDrawer.setAttribute('aria-hidden', 'false');
   cartTrigger.setAttribute('aria-expanded', 'true');
@@ -239,11 +245,12 @@ function openCart() {
   cartDrawer.focus();
 }
 
-function closeCart() {
+function closeCart({ restoreFocus = true } = {}) {
   cartDrawer.classList.remove('is-open');
   cartDrawer.setAttribute('aria-hidden', 'true');
   cartTrigger.setAttribute('aria-expanded', 'false');
   cleanupOverlay();
+  if (restoreFocus) cartTrigger.focus();
 }
 
 function cleanupOverlay() {
@@ -474,7 +481,7 @@ function initEvents() {
     if (!(target instanceof HTMLElement)) return;
     const trigger = target.closest('[data-open-product]');
     if (trigger instanceof HTMLElement) {
-      openModal(trigger.dataset.openProduct);
+      openModal(trigger.dataset.openProduct, trigger);
     }
   });
 
