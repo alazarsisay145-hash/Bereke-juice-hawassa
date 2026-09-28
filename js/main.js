@@ -215,6 +215,7 @@ const showToast = (message) => {
 };
 
 const setCheckoutOpen = (isOpen) => {
+  if (!checkoutPanel || !checkoutToggle) return;
   checkoutPanel.classList.toggle('is-open', isOpen);
   checkoutPanel.setAttribute('aria-hidden', String(!isOpen));
   checkoutPanel.inert = !isOpen;
@@ -317,6 +318,9 @@ const updateCartUI = () => {
   cartCountNodes.forEach((node) => {
     node.textContent = totalCount;
   });
+  if (!cartSubtotal || !cartTotal || !cartEmpty || !checkoutToggle || !cartItems || !checkoutSummary) {
+    return;
+  }
   cartSubtotal.textContent = formatETB(subtotal);
   cartTotal.textContent = formatETB(subtotal);
   cartEmpty.hidden = state.cart.length > 0;
@@ -498,7 +502,7 @@ const initHeroReveal = () => {
     window.setTimeout(() => preloader.remove(), 560);
   };
 
-  window.setTimeout(finishLoad, reduceMotion ? 60 : 900);
+  window.setTimeout(finishLoad, reduceMotion ? 0 : 900);
 };
 
 const setupForms = () => {
@@ -565,7 +569,7 @@ const setupEvents = () => {
     }
   });
 
-  modalAddButton.addEventListener('click', () => {
+  modalAddButton?.addEventListener('click', () => {
     addToCart(state.modalProductId, state.quantity);
     closeProductModal();
   });
@@ -609,7 +613,8 @@ const setupEvents = () => {
     link.addEventListener('click', () => togglePanel(mobileDrawer, mobileOverlay, navToggle, 'mobile', false));
   });
 
-  checkoutToggle.addEventListener('click', () => {
+  checkoutToggle?.addEventListener('click', () => {
+    if (!checkoutPanel) return;
     if (state.cart.length === 0) {
       showToast('Add an item to open checkout');
       return;
@@ -634,12 +639,12 @@ const setupEvents = () => {
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
-      if (productModal.classList.contains('is-open')) closeProductModal();
-      if (cartDrawer.classList.contains('is-open')) togglePanel(cartDrawer, cartOverlay, cartTrigger, 'cart', false);
-      if (mobileDrawer.classList.contains('is-open')) togglePanel(mobileDrawer, mobileOverlay, navToggle, 'mobile', false);
+      if (productModal?.classList.contains('is-open')) closeProductModal();
+      if (cartDrawer?.classList.contains('is-open')) togglePanel(cartDrawer, cartOverlay, cartTrigger, 'cart', false);
+      if (mobileDrawer?.classList.contains('is-open')) togglePanel(mobileDrawer, mobileOverlay, navToggle, 'mobile', false);
     }
 
-    const openDialog = [productModal, cartDrawer, mobileDrawer].find((element) => element.classList.contains('is-open'));
+    const openDialog = [productModal, cartDrawer, mobileDrawer].filter(Boolean).find((element) => element.classList.contains('is-open'));
     if (event.key === 'Tab' && openDialog) {
       const focusable = Array.from(openDialog.querySelectorAll('button, a, input, [tabindex]:not([tabindex="-1"])')).filter((item) => !item.hasAttribute('disabled'));
       if (!focusable.length) return;
