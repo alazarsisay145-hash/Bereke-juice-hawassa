@@ -116,12 +116,14 @@ const navToggle = document.querySelector('.nav-toggle');
 const cartTrigger = document.querySelector('.cart-trigger');
 const cartCountEls = [...document.querySelectorAll('[data-cart-count]')];
 const cartDrawer = document.querySelector('#cart-drawer');
+const cartCloseButton = document.querySelector('[data-close-cart]');
 const backdrop = document.querySelector('[data-backdrop]');
 const cartItemsEl = document.querySelector('[data-cart-items]');
 const cartEmptyEl = document.querySelector('[data-cart-empty]');
 const subtotalEl = document.querySelector('[data-cart-subtotal]');
 const totalEl = document.querySelector('[data-cart-total]');
 const modal = document.querySelector('#product-modal');
+const modalCloseButton = document.querySelector('[data-close-modal]');
 const modalImage = document.querySelector('[data-modal-image]');
 const modalTitle = document.querySelector('[data-modal-title]');
 const modalCategory = document.querySelector('[data-modal-category]');
@@ -157,30 +159,68 @@ function formatPrice(value) {
   return `ETB ${value.toLocaleString()}`;
 }
 
+function safeImageUrl(value) {
+  try {
+    const url = new URL(String(value), window.location.href);
+    return ['http:', 'https:'].includes(url.protocol) ? url.href : 'assets/fruit-badge.svg';
+  } catch {
+    return 'assets/fruit-badge.svg';
+  }
+}
+
 function renderMenu() {
   const items = menuItems.filter((item) => item.category === state.activeCategory);
-  const markup = items.map((item, index) => `
-    <article class="menu-card glass-panel reveal is-visible" style="transition-delay:${Math.min(index * 70, 280)}ms">
-      <div class="menu-card__image">
-        <img src="${item.image}" alt="${item.name} prepared fresh at Bereket Juice &amp; Salad" loading="lazy" />
-      </div>
-      <div class="menu-card__content">
-        <div class="card__header">
-          <div>
-            <span class="card__category">${item.category}</span>
-            <h3>${item.name}</h3>
-          </div>
-          <span class="card__price">${formatPrice(item.price)}</span>
-        </div>
-        <p class="card__description">${item.description}</p>
-        <div class="card__footer">
-          <button class="button button--primary card__button" type="button" data-open-product="${item.id}">Order now</button>
-        </div>
-      </div>
-    </article>
-  `).join('');
+  menuGrid.replaceChildren();
 
-  menuGrid.innerHTML = markup;
+  items.forEach((item, index) => {
+    const article = document.createElement('article');
+    article.className = 'menu-card glass-panel reveal is-visible';
+    article.style.transitionDelay = `${Math.min(index * 70, 280)}ms`;
+
+    const imageWrap = document.createElement('div');
+    imageWrap.className = 'menu-card__image';
+    const image = document.createElement('img');
+    image.src = safeImageUrl(item.image);
+    image.alt = `${item.name} prepared fresh at Bereket Juice & Salad`;
+    image.loading = 'lazy';
+    imageWrap.append(image);
+
+    const content = document.createElement('div');
+    content.className = 'menu-card__content';
+
+    const header = document.createElement('div');
+    header.className = 'card__header';
+    const titleWrap = document.createElement('div');
+    const category = document.createElement('span');
+    category.className = 'card__category';
+    category.textContent = item.category;
+    const title = document.createElement('h3');
+    title.textContent = item.name;
+    titleWrap.append(category, title);
+
+    const price = document.createElement('span');
+    price.className = 'card__price';
+    price.textContent = formatPrice(item.price);
+    header.append(titleWrap, price);
+
+    const description = document.createElement('p');
+    description.className = 'card__description';
+    description.textContent = item.description;
+
+    const footer = document.createElement('div');
+    footer.className = 'card__footer';
+    const button = document.createElement('button');
+    button.className = 'button button--primary card__button';
+    button.type = 'button';
+    button.dataset.openProduct = item.id;
+    button.textContent = 'Order now';
+    footer.append(button);
+
+    content.append(header, description, footer);
+    article.append(imageWrap, content);
+    menuGrid.append(article);
+  });
+
   requestAnimationFrame(() => {
     [...menuGrid.children].forEach((card, index) => {
       card.classList.add('is-hiding');
@@ -222,7 +262,7 @@ function openModal(itemId, trigger = document.activeElement) {
   backdrop.hidden = false;
   backdrop.classList.add('is-visible');
   releaseFocusTrap = trapFocus(modal);
-  modal.focus();
+  modalCloseButton.focus();
 }
 
 function closeModal({ restoreFocus = true } = {}) {
@@ -241,7 +281,7 @@ function openCart() {
   backdrop.hidden = false;
   backdrop.classList.add('is-visible');
   releaseFocusTrap = trapFocus(cartDrawer);
-  cartDrawer.focus();
+  cartCloseButton.focus();
 }
 
 function closeCart({ restoreFocus = true } = {}) {
@@ -312,28 +352,66 @@ function renderCart() {
   });
 
   cartEmptyEl.hidden = state.cart.length > 0;
-  cartItemsEl.innerHTML = state.cart.map((item) => `
-    <article class="cart-item">
-      <img src="${item.image}" alt="${item.name} in the shopping cart" loading="lazy" />
-      <div class="cart-item__content">
-        <div class="cart-item__top">
-          <div>
-            <h3>${item.name}</h3>
-            <span class="cart-item__meta">${formatPrice(item.price)} each</span>
-          </div>
-          <button class="icon-button" type="button" data-remove-item="${item.id}" aria-label="Remove ${item.name}">✕</button>
-        </div>
-        <div class="cart-item__actions">
-          <div class="quantity-selector">
-            <button type="button" data-cart-qty="-1" data-item-id="${item.id}" aria-label="Decrease ${item.name} quantity">−</button>
-            <span>${item.quantity}</span>
-            <button type="button" data-cart-qty="1" data-item-id="${item.id}" aria-label="Increase ${item.name} quantity">+</button>
-          </div>
-          <strong>${formatPrice(item.price * item.quantity)}</strong>
-        </div>
-      </div>
-    </article>
-  `).join('');
+  cartItemsEl.replaceChildren();
+
+  state.cart.forEach((item) => {
+    const article = document.createElement('article');
+    article.className = 'cart-item';
+
+    const image = document.createElement('img');
+    image.src = safeImageUrl(item.image);
+    image.alt = `${item.name} in the shopping cart`;
+    image.loading = 'lazy';
+
+    const content = document.createElement('div');
+    content.className = 'cart-item__content';
+
+    const top = document.createElement('div');
+    top.className = 'cart-item__top';
+    const titleWrap = document.createElement('div');
+    const title = document.createElement('h3');
+    title.textContent = item.name;
+    const meta = document.createElement('span');
+    meta.className = 'cart-item__meta';
+    meta.textContent = `${formatPrice(item.price)} each`;
+    titleWrap.append(title, meta);
+
+    const removeButton = document.createElement('button');
+    removeButton.className = 'icon-button';
+    removeButton.type = 'button';
+    removeButton.dataset.removeItem = item.id;
+    removeButton.setAttribute('aria-label', `Remove ${item.name}`);
+    removeButton.textContent = '✕';
+    top.append(titleWrap, removeButton);
+
+    const actions = document.createElement('div');
+    actions.className = 'cart-item__actions';
+    const quantitySelector = document.createElement('div');
+    quantitySelector.className = 'quantity-selector';
+    const decrement = document.createElement('button');
+    decrement.type = 'button';
+    decrement.dataset.cartQty = '-1';
+    decrement.dataset.itemId = item.id;
+    decrement.setAttribute('aria-label', `Decrease ${item.name} quantity`);
+    decrement.textContent = '−';
+    const quantity = document.createElement('span');
+    quantity.textContent = String(item.quantity);
+    const increment = document.createElement('button');
+    increment.type = 'button';
+    increment.dataset.cartQty = '1';
+    increment.dataset.itemId = item.id;
+    increment.setAttribute('aria-label', `Increase ${item.name} quantity`);
+    increment.textContent = '+';
+    quantitySelector.append(decrement, quantity, increment);
+
+    const total = document.createElement('strong');
+    total.textContent = formatPrice(item.price * item.quantity);
+    actions.append(quantitySelector, total);
+
+    content.append(top, actions);
+    article.append(image, content);
+    cartItemsEl.append(article);
+  });
 
   const subtotal = state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   subtotalEl.textContent = formatPrice(subtotal);

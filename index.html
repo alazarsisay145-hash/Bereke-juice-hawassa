@@ -146,14 +146,14 @@
 
             <div class="menu__tabs glass-panel reveal" role="tablist" aria-label="Menu categories">
               <span class="menu__tab-indicator" aria-hidden="true"></span>
-              <button class="menu__tab is-active" type="button" role="tab" aria-selected="true" data-category="Fresh Juices">Fresh Juices</button>
-              <button class="menu__tab" type="button" role="tab" aria-selected="false" data-category="Smoothies">Smoothies</button>
-              <button class="menu__tab" type="button" role="tab" aria-selected="false" data-category="Shakes">Shakes</button>
-              <button class="menu__tab" type="button" role="tab" aria-selected="false" data-category="Burgers">Burgers</button>
-              <button class="menu__tab" type="button" role="tab" aria-selected="false" data-category="Fruit Salads">Fruit Salads</button>
+              <button class="menu__tab is-active" type="button" role="tab" aria-selected="true" aria-controls="menu-grid" data-category="Fresh Juices">Fresh Juices</button>
+              <button class="menu__tab" type="button" role="tab" aria-selected="false" aria-controls="menu-grid" data-category="Smoothies">Smoothies</button>
+              <button class="menu__tab" type="button" role="tab" aria-selected="false" aria-controls="menu-grid" data-category="Shakes">Shakes</button>
+              <button class="menu__tab" type="button" role="tab" aria-selected="false" aria-controls="menu-grid" data-category="Burgers">Burgers</button>
+              <button class="menu__tab" type="button" role="tab" aria-selected="false" aria-controls="menu-grid" data-category="Fruit Salads">Fruit Salads</button>
             </div>
 
-            <div class="menu__grid" id="menu-grid" aria-live="polite"></div>
+            <div class="menu__grid" id="menu-grid" role="tabpanel" aria-live="polite"></div>
           </div>
         </section>
 
