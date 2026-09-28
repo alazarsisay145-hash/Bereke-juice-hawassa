@@ -195,6 +195,7 @@ const setIndicator = (indicator, activeElement) => {
 };
 
 const showToast = (message) => {
+  if (!toast) return;
   toast.textContent = message;
   toast.classList.add('is-visible');
   toast.setAttribute('aria-hidden', 'false');
@@ -208,6 +209,8 @@ const showToast = (message) => {
 const setCheckoutOpen = (isOpen) => {
   checkoutPanel.classList.toggle('is-open', isOpen);
   checkoutPanel.setAttribute('aria-hidden', String(!isOpen));
+  checkoutPanel.hidden = !isOpen;
+  checkoutPanel.inert = !isOpen;
   checkoutToggle.setAttribute('aria-expanded', String(isOpen));
 };
 
@@ -355,8 +358,8 @@ const addToCart = (productId, quantity = 1) => {
   }
   saveCart();
   updateCartUI();
-  cartTrigger.classList.add('is-bumping');
-  window.setTimeout(() => cartTrigger.classList.remove('is-bumping'), 480);
+  cartTrigger?.classList.add('is-bumping');
+  window.setTimeout(() => cartTrigger?.classList.remove('is-bumping'), 480);
   showToast(`${product.name} added to cart`);
 };
 
