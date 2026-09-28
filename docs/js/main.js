@@ -239,6 +239,12 @@ const setText = (node, value) => {
   if (node) node.textContent = String(value ?? '');
 };
 
+const syncCartTriggerLabel = (count) => {
+  if (!cartTrigger) return;
+  const suffix = count === 1 ? 'item' : 'items';
+  cartTrigger.setAttribute('aria-label', `Cart, ${count} ${suffix}`);
+};
+
 const getProduct = (productId) => products.find((entry) => entry.id === productId);
 const getVisibleProducts = () => state.category === 'all'
   ? products
@@ -423,6 +429,7 @@ const updateCartUI = () => {
   cartCountNodes.forEach((node) => {
     node.textContent = totalCount;
   });
+  syncCartTriggerLabel(totalCount);
 
   setText(cartStatus, totalCount ? `${totalCount} item${totalCount === 1 ? '' : 's'} in cart.` : 'Cart is empty.');
 
@@ -558,9 +565,33 @@ const closeProductModal = () => {
   focusReturnTargets.modal?.focus?.();
 };
 
+const closePanelState = (panel, overlay, trigger) => {
+  if (!panel) return;
+  panel.classList.remove('is-open');
+  panel.setAttribute('aria-hidden', 'true');
+  overlay?.classList.remove('is-visible');
+  trigger?.setAttribute('aria-expanded', 'false');
+};
+
+const closeOtherPanels = (activePanel) => {
+  if (activePanel !== productModal && isPanelOpen(productModal)) {
+    closeProductModal();
+  }
+  if (activePanel !== cartDrawer && isPanelOpen(cartDrawer)) {
+    closePanelState(cartDrawer, cartOverlay, cartTrigger);
+  }
+  if (activePanel !== mobileDrawer && isPanelOpen(mobileDrawer)) {
+    closePanelState(mobileDrawer, mobileOverlay, navToggle);
+  }
+};
+
 const togglePanel = (panel, overlay, trigger, focusKey, open) => {
   if (!panel) return;
   const shouldOpen = open ?? !panel.classList.contains('is-open');
+
+  if (shouldOpen) {
+    closeOtherPanels(panel);
+  }
 
   panel.classList.toggle('is-open', shouldOpen);
   overlay?.classList.toggle('is-visible', shouldOpen);
