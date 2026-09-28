@@ -561,6 +561,8 @@ const closeProductModal = () => {
   if (!productModal) return;
   productModal.classList.remove('is-open');
   productModal.setAttribute('aria-hidden', 'true');
+  state.modalProductId = null;
+  state.quantity = 1;
   syncBodyScroll();
   focusReturnTargets.modal?.focus?.();
 };
