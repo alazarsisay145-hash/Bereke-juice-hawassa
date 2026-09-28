@@ -67,6 +67,7 @@ Menu data lives in **`docs/js/main.js`**.
 ## Replacing photos and brand imagery
 
 - Store local web-ready images in **`docs/assets/`**.
+- The featured hero/About/gallery image currently uses `docs/assets/interior-dining.jpg` plus the smaller `docs/assets/interior-dining-800.jpg` mobile version.
 - Update image references in **`docs/index.html`** if filenames change.
 - Keep images compressed and include explicit `width` and `height` attributes for stable layout.
 - If you replace the featured interior image, also update the corresponding Open Graph and structured data image references in `docs/index.html`.

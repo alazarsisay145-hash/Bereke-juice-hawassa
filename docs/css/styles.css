@@ -1447,3 +1447,343 @@ body.loaded .hero__visual {
     transform: none;
   }
 }
+
+:root {
+  --bg: #120d09;
+  --bg-soft: #1a1511;
+  --surface: rgba(255, 248, 239, 0.1);
+  --surface-strong: rgba(255, 248, 239, 0.16);
+  --border: rgba(255, 244, 228, 0.18);
+  --text: #fff9f1;
+  --muted: rgba(255, 247, 235, 0.78);
+  --gold: #f5c15d;
+  --orange: #ed8d31;
+  --green: #71bc59;
+  --shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+  --radius: 22px;
+  --radius-sm: 14px;
+}
+
+body {
+  background:
+    radial-gradient(circle at top, rgba(245, 193, 93, 0.12), transparent 28%),
+    radial-gradient(circle at 20% 18%, rgba(113, 188, 89, 0.11), transparent 22%),
+    linear-gradient(180deg, #17110d 0%, #110d09 48%, #0b0806 100%);
+}
+
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 120;
+  padding: 0.8rem 1rem;
+  border-radius: 999px;
+  background: #fff5e4;
+  color: #1d1205;
+  font-weight: 800;
+  transform: translateY(-140%);
+  transition: transform var(--transition);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.glass,
+.hero__content,
+.hero-card,
+.menu-card,
+.info-card,
+.highlight-card,
+.contact-card,
+.map-card,
+.guest-house__layout,
+.modal__card,
+.cart-drawer,
+.mobile-drawer,
+.site-footer,
+.checkout-panel,
+.filter-bar {
+  background: linear-gradient(180deg, rgba(33, 24, 19, 0.88), rgba(25, 19, 15, 0.78));
+  border-color: rgba(255, 236, 213, 0.14);
+}
+
+.hero__content,
+.highlight-card,
+.info-card,
+.contact-card,
+.map-card div,
+.guest-house__content,
+.cart-line,
+.checkout-summary,
+.modal__content {
+  background: linear-gradient(180deg, rgba(255, 250, 242, 0.06), rgba(255, 250, 242, 0));
+}
+
+.navbar,
+.site-footer {
+  border-color: rgba(255, 236, 213, 0.18);
+}
+
+.nav-toggle,
+.cart-trigger,
+.quantity-selector,
+.order-mini,
+.mobile-contact,
+.button--secondary,
+.back-to-top {
+  background: rgba(255, 247, 235, 0.08);
+}
+
+.hero {
+  gap: 1.6rem;
+  padding-top: 2rem;
+}
+
+.hero__content {
+  padding: 1.6rem;
+}
+
+.hero-copy,
+.section-heading p:last-child,
+.about-story p,
+.contact-card li,
+.feature-list li,
+.guest-house__content p,
+.gallery-card figcaption,
+.cart-empty p,
+.cart-summary span,
+.checkout-panel label,
+.modal__content p,
+.site-footer p,
+.site-footer a {
+  color: var(--muted);
+}
+
+.hero-meta div,
+.highlight-card,
+.info-card,
+.contact-card,
+.gallery-card figcaption,
+.cart-line,
+.checkout-summary {
+  border: 1px solid rgba(255, 236, 213, 0.08);
+}
+
+.hero-meta div {
+  padding: 0.85rem 1rem;
+  border-radius: 18px;
+  background: rgba(255, 248, 239, 0.04);
+}
+
+.hero-card {
+  max-width: min(42rem, 100%);
+}
+
+.hero-card picture,
+.about-story__media picture,
+.gallery-card picture,
+.map-card picture {
+  display: block;
+}
+
+.hero-card__content span,
+.menu-card__meta span,
+.cart-line small,
+.menu-card__price,
+.highlight-card h3 {
+  color: var(--gold);
+}
+
+.hero-card__content,
+.map-card div {
+  padding: 1.1rem 1.15rem 1.25rem;
+}
+
+.highlights {
+  padding-top: 0.4rem;
+}
+
+.highlights-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.highlight-card {
+  position: relative;
+  overflow: hidden;
+  padding: 1.15rem;
+  border-radius: var(--radius);
+}
+
+.highlight-card h3 {
+  margin: 0 0 0.55rem;
+  font-size: 1.05rem;
+}
+
+.highlight-card p {
+  margin: 0;
+}
+
+.filter-bar {
+  margin-bottom: 1.5rem;
+}
+
+.filter-tab {
+  font-weight: 700;
+}
+
+.filter-tab.active {
+  color: #1d1205;
+}
+
+.filter-indicator {
+  background: linear-gradient(135deg, rgba(255, 208, 107, 0.98), rgba(237, 141, 49, 0.98));
+  border-color: transparent;
+}
+
+.menu-card {
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
+}
+
+.menu-card__price {
+  font-size: 1.05rem;
+  white-space: nowrap;
+}
+
+.menu-card .button--secondary {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.menu-card:hover .button--secondary,
+.menu-card .button--secondary:focus-visible {
+  background: linear-gradient(135deg, rgba(237, 141, 49, 0.98), rgba(245, 193, 93, 0.98));
+  color: #1d1205;
+  border-color: transparent;
+}
+
+.about-story,
+.gallery-card,
+.guest-house__layout,
+.map-card {
+  box-shadow: var(--shadow);
+}
+
+.place-gallery__grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.contact-layout {
+  gap: 1rem;
+}
+
+.contact-layout--cards {
+  display: grid;
+  gap: 1rem;
+}
+
+.contact-layout--feature {
+  margin-top: 1rem;
+}
+
+.contact-card__actions,
+.site-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.site-footer__links a {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0;
+}
+
+.floating-order,
+.back-to-top {
+  position: fixed;
+  right: 1rem;
+  z-index: 20;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition), transform var(--transition), visibility var(--transition);
+}
+
+.floating-order {
+  bottom: 1rem;
+}
+
+.back-to-top {
+  bottom: 4.95rem;
+  width: 3rem;
+  height: 3rem;
+  border: 1px solid rgba(255, 236, 213, 0.18);
+  border-radius: 50%;
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  transform: translateY(1rem);
+}
+
+.floating-order.is-visible,
+.back-to-top.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.toast {
+  bottom: 1.2rem;
+}
+
+.site-footer {
+  margin-bottom: 5.8rem;
+}
+
+@media (min-width: 768px) {
+  .highlights-grid,
+  .contact-layout--cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .place-gallery__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  .highlights-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .contact-layout--cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .hero-meta div,
+  .contact-card__actions .button,
+  .site-footer__links a {
+    width: 100%;
+  }
+
+  .hero__content,
+  .contact-card,
+  .highlight-card,
+  .info-card,
+  .guest-house__content,
+  .modal__content {
+    padding: 1rem;
+  }
+
+  .back-to-top {
+    bottom: 5.35rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .back-to-top {
+    transition: none;
+  }
+}
