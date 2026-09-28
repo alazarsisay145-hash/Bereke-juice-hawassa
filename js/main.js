@@ -419,7 +419,7 @@ function renderCart() {
 }
 
 function animateCartTrigger() {
-  if (typeof cartTrigger.animate !== 'function') return;
+  if (!cartTrigger || typeof cartTrigger.animate !== 'function') return;
   cartTrigger.animate(
     [
       { transform: 'scale(1)' },
@@ -495,40 +495,61 @@ function initRevealObserver() {
 }
 
 function initForms() {
-  notifyForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const email = new FormData(notifyForm).get('email')?.toString().trim() || '';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setMessage(notifyMessage, 'Please enter a valid email to join the Bereket Guest House waitlist.', 'is-error');
-      return;
-    }
-    notifyForm.reset();
-    setMessage(notifyMessage, 'Thanks! We will let you know when the guest house officially opens.', 'is-success');
-    if (typeof notifyMessage.animate === 'function') {
-      notifyMessage.animate([{ transform: 'scale(0.96)' }, { transform: 'scale(1)' }], { duration: 260, easing: 'ease-out' });
-    }
-  });
+  if (notifyForm && notifyMessage) {
+    notifyForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const email = new FormData(notifyForm).get('email')?.toString().trim() || '';
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        setMessage(notifyMessage, 'Please enter a valid email to join the Bereket Guest House waitlist.', 'is-error');
+        return;
+      }
+      notifyForm.reset();
+      setMessage(notifyMessage, 'Thanks! We will let you know when the guest house officially opens.', 'is-success');
+      if (typeof notifyMessage.animate === 'function') {
+        notifyMessage.animate([{ transform: 'scale(0.96)' }, { transform: 'scale(1)' }], { duration: 260, easing: 'ease-out' });
+      }
+    });
+  }
 
-  checkoutForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    if (!state.cart.length) {
-      setMessage(checkoutMessage, 'Add items to your cart before checking out.', 'is-error');
-      return;
-    }
-    const formData = new FormData(checkoutForm);
-    const name = formData.get('name')?.toString().trim();
-    const phone = formData.get('phone')?.toString().trim();
-    if (!name || !phone) {
-      setMessage(checkoutMessage, 'Please enter your name and phone number.', 'is-error');
-      return;
-    }
-    setMessage(checkoutMessage, `Thank you, ${name}! Your Bereket order summary is ready. We will confirm via ${phone}.`, 'is-success');
-    state.cart = [];
-    saveCart();
-    renderCart();
-    checkoutForm.reset();
-    showToast('Order confirmation ready');
-  });
+  if (checkoutForm && checkoutMessage) {
+    checkoutForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!state.cart.length) {
+        setMessage(checkoutMessage, 'Add items to your cart before checking out.', 'is-error');
+        return;
+      }
+      const formData = new FormData(checkoutForm);
+      const name = formData.get('name')?.toString().trim();
+      const phone = formData.get('phone')?.toString().trim();
+      if (!name || !phone) {
+        setMessage(checkoutMessage, 'Please enter your name and phone number.', 'is-error');
+        return;
+      }
+      setMessage(checkoutMessage, `Thank you, ${name}! Your Bereket order summary is ready. We will confirm via ${phone}.`, 'is-success');
+      state.cart = [];
+      saveCart();
+      renderCart();
+      checkoutForm.reset();
+      showToast('Order confirmation ready');
+    });
+  }
+}
+
+function syncNavMenuAccessibility() {
+  if (!navWrap || !navToggle) return;
+  const isMobile = window.matchMedia('(max-width: 960px)').matches;
+  const isOpen = navWrap.classList.contains('is-open');
+
+  if (isMobile) {
+    navWrap.hidden = !isOpen;
+    navWrap.inert = !isOpen;
+  } else {
+    navWrap.hidden = false;
+    navWrap.inert = false;
+    navWrap.classList.remove('is-open');
+    navToggle.classList.remove('is-open');
+    navToggle.setAttribute('aria-expanded', 'false');
+  }
 }
 
 function initEvents() {
@@ -605,6 +626,7 @@ function initEvents() {
     navToggle.setAttribute('aria-expanded', String(!expanded));
     navToggle.classList.toggle('is-open', !expanded);
     navWrap.classList.toggle('is-open', !expanded);
+    syncNavMenuAccessibility();
   });
 
   navLinks.forEach((link) => {
@@ -612,6 +634,7 @@ function initEvents() {
       navWrap.classList.remove('is-open');
       navToggle.classList.remove('is-open');
       navToggle.setAttribute('aria-expanded', 'false');
+      syncNavMenuAccessibility();
     });
   });
 
@@ -626,6 +649,7 @@ function initEvents() {
   window.addEventListener('resize', () => {
     updateIndicator(tabs, tabIndicator);
     updateIndicator(navLinks, navIndicator);
+    syncNavMenuAccessibility();
   });
   window.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
@@ -634,23 +658,25 @@ function initEvents() {
       navWrap.classList.remove('is-open');
       navToggle.classList.remove('is-open');
       navToggle.setAttribute('aria-expanded', 'false');
+      syncNavMenuAccessibility();
     }
   });
 }
 
 function init() {
-  year.textContent = String(new Date().getFullYear());
+  if (year) year.textContent = String(new Date().getFullYear());
   renderMenu();
   renderCart();
   initRevealObserver();
   initForms();
   initEvents();
   handleScrollSections();
+  syncNavMenuAccessibility();
   updateIndicator(tabs, tabIndicator);
   updateIndicator(navLinks, navIndicator);
 
   window.setTimeout(() => {
-    preloader.classList.add('is-hidden');
+    if (preloader) preloader.classList.add('is-hidden');
     body.classList.add('is-ready');
   }, window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 10 : 1100);
 }
