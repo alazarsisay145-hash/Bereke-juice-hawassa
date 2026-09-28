@@ -826,11 +826,19 @@ const setupEvents = () => {
     }
 
     if (quantityButton) {
-      state.cart = state.cart.map((item) => {
-        if (item.id !== quantityButton.dataset.id) return item;
+      state.cart = state.cart.reduce((items, item) => {
+        if (item.id !== quantityButton.dataset.id) {
+          items.push(item);
+          return items;
+        }
+
         const delta = quantityButton.dataset.cartQty === 'increase' ? 1 : -1;
-        return { ...item, quantity: Math.max(1, item.quantity + delta) };
-      });
+        const nextQuantity = item.quantity + delta;
+        if (nextQuantity > 0) {
+          items.push({ ...item, quantity: nextQuantity });
+        }
+        return items;
+      }, []);
     }
 
     saveCart();
