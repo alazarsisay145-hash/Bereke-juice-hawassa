@@ -668,7 +668,7 @@ const initHeroReveal = () => {
     document.body.classList.add('loaded');
     if (preloader) {
       preloader.classList.add('is-hidden');
-      window.setTimeout(() => preloader.remove(), repeatVisit ? 0 : 420);
+      window.setTimeout(() => preloader.remove(), repeatVisit || reduceMotion ? 0 : 420);
     }
     session.set('bereket-visited', 'true');
   };
