@@ -122,11 +122,12 @@ const state = {
   quantity: 1,
   modalProductId: null,
   cart: [],
-  toastTimer: null,
-  visited: false
+  toastTimer: null
 };
 
-const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const reduceMotion = typeof window.matchMedia === 'function'
+  ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  : false;
 const menuGrid = document.getElementById('menu-grid');
 const filterTabs = Array.from(document.querySelectorAll('.filter-tab'));
 const filterIndicator = document.querySelector('.filter-indicator');
@@ -172,6 +173,7 @@ const focusReturnTargets = {
   cart: null,
   mobile: null
 };
+let heroRevealInitialized = false;
 
 const storage = {
   supported: (() => {
@@ -234,6 +236,11 @@ const session = {
 };
 
 const formatETB = (value) => `ETB ${value.toLocaleString()}`;
+const getActiveElement = () => document.activeElement instanceof HTMLElement ? document.activeElement : null;
+const focusElement = (node) => node?.focus?.();
+const onNextFrame = (callback) => (typeof window.requestAnimationFrame === 'function'
+  ? window.requestAnimationFrame(callback)
+  : window.setTimeout(callback, 16));
 
 const setText = (node, value) => {
   if (node) node.textContent = String(value ?? '');
@@ -254,7 +261,7 @@ const isPanelOpen = (panel) => Boolean(panel?.classList.contains('is-open'));
 
 const syncBodyScroll = () => {
   const anyOpen = [productModal, cartDrawer, mobileDrawer].some((panel) => isPanelOpen(panel));
-  document.body.classList.toggle('no-scroll', anyOpen);
+  document.body?.classList.toggle('no-scroll', anyOpen);
 };
 
 const setIndicator = (indicator, activeElement) => {
@@ -399,7 +406,7 @@ const renderMenu = (withAnimation = false) => {
       setText(menuStatus, `${items.length} item${items.length === 1 ? '' : 's'} shown for ${categoryLabel}.`);
     }
 
-    requestAnimationFrame(() => {
+    onNextFrame(() => {
       const cards = Array.from(menuGrid.querySelectorAll('.menu-card'));
       cards.forEach((card, index) => {
         card.style.transitionDelay = `${Math.min(index * 45, 180)}ms`;
@@ -541,7 +548,8 @@ const openProductModal = (productId, trigger) => {
 
   state.modalProductId = productId;
   state.quantity = 1;
-  focusReturnTargets.modal = trigger || document.activeElement;
+  closeOtherPanels(productModal);
+  focusReturnTargets.modal = trigger || getActiveElement();
 
   modalImage.src = product.image;
   modalImage.alt = `${product.name} close-up`;
@@ -554,7 +562,7 @@ const openProductModal = (productId, trigger) => {
   productModal.classList.add('is-open');
   productModal.setAttribute('aria-hidden', 'false');
   syncBodyScroll();
-  productModal.querySelector('[data-close-modal]')?.focus();
+  focusElement(productModal.querySelector('[data-close-modal]'));
 };
 
 const closeProductModal = () => {
@@ -564,7 +572,7 @@ const closeProductModal = () => {
   state.modalProductId = null;
   state.quantity = 1;
   syncBodyScroll();
-  focusReturnTargets.modal?.focus?.();
+  focusElement(focusReturnTargets.modal);
 };
 
 const closePanelState = (panel, overlay, trigger) => {
@@ -601,10 +609,10 @@ const togglePanel = (panel, overlay, trigger, focusKey, open) => {
   trigger?.setAttribute('aria-expanded', String(shouldOpen));
 
   if (shouldOpen) {
-    focusReturnTargets[focusKey] = document.activeElement;
-    panel.querySelector('button, a, input, [tabindex]:not([tabindex="-1"])')?.focus();
+    focusReturnTargets[focusKey] = trigger || getActiveElement();
+    focusElement(panel.querySelector('button, a, input, [tabindex]:not([tabindex="-1"])'));
   } else {
-    focusReturnTargets[focusKey]?.focus?.();
+    focusElement(focusReturnTargets[focusKey]);
   }
 
   syncBodyScroll();
@@ -639,7 +647,9 @@ const scrollToTarget = (selector) => {
   if (!selector) return;
   const target = document.querySelector(selector);
   if (!target) return;
-  target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  if (typeof target.scrollIntoView === 'function') {
+    target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  }
 };
 
 const syncFloatingButtons = () => {
@@ -695,6 +705,8 @@ const setupRevealAnimations = () => {
 };
 
 const initHeroReveal = () => {
+  if (heroRevealInitialized) return;
+  heroRevealInitialized = true;
   const repeatVisit = session.get('bereket-visited') === 'true';
 
   const finishLoad = () => {
@@ -711,7 +723,12 @@ const initHeroReveal = () => {
     return;
   }
 
-  window.setTimeout(finishLoad, 420);
+  const revealHero = () => window.setTimeout(finishLoad, 420);
+  if (document.readyState === 'complete') {
+    revealHero();
+  } else {
+    window.addEventListener('load', revealHero, { once: true });
+  }
 };
 
 const setupForms = () => {
@@ -899,9 +916,4 @@ updateActiveNav();
 setIndicator(filterIndicator, document.querySelector('.filter-tab.active'));
 setIndicator(navIndicator, document.querySelector('.nav-link.active'));
 syncFloatingButtons();
-
-if (document.readyState === 'complete') {
-  initHeroReveal();
-} else {
-  window.addEventListener('load', initHeroReveal, { once: true });
-}
+initHeroReveal();

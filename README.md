@@ -67,10 +67,23 @@ Menu data lives in **`docs/js/main.js`**.
 ## Replacing photos and brand imagery
 
 - Store local web-ready images in **`docs/assets/`**.
-- The featured hero/About/gallery image currently uses `docs/assets/interior-dining.jpg` plus the smaller `docs/assets/interior-dining-800.jpg` mobile version.
+- Swap these exact files when replacing the current shop photo set:
+  - `docs/assets/interior-dining.jpg` — main interior photo used in About/gallery
+  - `docs/assets/interior-dining-800.jpg` — 800px responsive version of the main interior photo
+  - `docs/assets/interior-dining-1600.jpg` — 1600px responsive version of the main interior photo
+  - `docs/assets/interior-dining-hero.jpg` — landscape hero crop
+  - `docs/assets/interior-dining-hero-800.jpg` — 800px responsive hero crop
 - Update image references in **`docs/index.html`** if filenames change.
 - Keep images compressed and include explicit `width` and `height` attributes for stable layout.
 - If you replace the featured interior image, also update the corresponding Open Graph and structured data image references in `docs/index.html`.
+
+## Smoke test
+
+Run the lightweight storefront smoke test with:
+
+```bash
+npm test
+```
 
 ## Notes
 
