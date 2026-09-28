@@ -124,12 +124,15 @@ const filterIndicator = document.querySelector('.filter-indicator');
 const navLinks = Array.from(document.querySelectorAll('.nav-link'));
 const navIndicator = document.querySelector('.nav-indicator');
 const sections = Array.from(document.querySelectorAll('main section[id]'));
+const homeSection = document.getElementById('home');
 const cartDrawer = document.getElementById('cart-drawer');
 const cartOverlay = document.querySelector('[data-overlay="cart"]');
 const mobileDrawer = document.getElementById('mobile-drawer');
 const mobileOverlay = document.querySelector('[data-overlay="mobile"]');
 const cartTrigger = document.querySelector('.cart-trigger');
+const closeCartButton = document.querySelector('[data-close-cart]');
 const navToggle = document.querySelector('.nav-toggle');
+const closeMobileButton = document.querySelector('[data-close-mobile]');
 const floatingOrderButton = document.querySelector('.floating-order');
 const productModal = document.getElementById('product-modal');
 const modalImage = document.getElementById('modal-image');
@@ -151,6 +154,7 @@ const checkoutToggle = document.querySelector('.cart-checkout-toggle');
 const notifyForm = document.querySelector('.notify-form');
 const checkoutForm = document.querySelector('form[data-checkout-form]');
 const preloader = document.querySelector('.preloader');
+const menuStatus = document.getElementById('menu-status');
 const focusReturnTargets = {
   modal: null,
   cart: null,
@@ -281,6 +285,10 @@ const renderMenu = (withAnimation = false) => {
     items.forEach((product) => {
       menuGrid.append(buildMenuCard(product, withAnimation));
     });
+    if (menuStatus) {
+      const categoryLabel = document.querySelector('.filter-tab.active')?.textContent?.trim() || 'All';
+      menuStatus.textContent = `${items.length} item${items.length === 1 ? '' : 's'} shown for ${categoryLabel}.`;
+    }
     requestAnimationFrame(() => {
       const cards = Array.from(menuGrid.querySelectorAll('.menu-card'));
       cards.forEach((card, index) => {
@@ -421,7 +429,7 @@ const openProductModal = (productId, trigger) => {
 const closeProductModal = () => {
   productModal.classList.remove('is-open');
   productModal.setAttribute('aria-hidden', 'true');
-  if (!cartDrawer.classList.contains('is-open') && !mobileDrawer.classList.contains('is-open')) {
+  if (!cartDrawer?.classList.contains('is-open') && !mobileDrawer?.classList.contains('is-open')) {
     document.body.classList.remove('no-scroll');
   }
   focusReturnTargets.modal?.focus?.();
@@ -590,13 +598,13 @@ const setupEvents = () => {
     updateCartUI();
   });
 
-  cartTrigger.addEventListener('click', () => togglePanel(cartDrawer, cartOverlay, cartTrigger, 'cart', true));
-  document.querySelector('[data-close-cart]').addEventListener('click', () => togglePanel(cartDrawer, cartOverlay, cartTrigger, 'cart', false));
-  cartOverlay.addEventListener('click', () => togglePanel(cartDrawer, cartOverlay, cartTrigger, 'cart', false));
+  cartTrigger?.addEventListener('click', () => togglePanel(cartDrawer, cartOverlay, cartTrigger, 'cart', true));
+  closeCartButton?.addEventListener('click', () => togglePanel(cartDrawer, cartOverlay, cartTrigger, 'cart', false));
+  cartOverlay?.addEventListener('click', () => togglePanel(cartDrawer, cartOverlay, cartTrigger, 'cart', false));
 
   navToggle?.addEventListener('click', () => togglePanel(mobileDrawer, mobileOverlay, navToggle, 'mobile'));
-  document.querySelector('[data-close-mobile]').addEventListener('click', () => togglePanel(mobileDrawer, mobileOverlay, navToggle, 'mobile', false));
-  mobileOverlay.addEventListener('click', () => togglePanel(mobileDrawer, mobileOverlay, navToggle, 'mobile', false));
+  closeMobileButton?.addEventListener('click', () => togglePanel(mobileDrawer, mobileOverlay, navToggle, 'mobile', false));
+  mobileOverlay?.addEventListener('click', () => togglePanel(mobileDrawer, mobileOverlay, navToggle, 'mobile', false));
   document.querySelectorAll('.mobile-link').forEach((link) => {
     link.addEventListener('click', () => togglePanel(mobileDrawer, mobileOverlay, navToggle, 'mobile', false));
   });
@@ -615,7 +623,7 @@ const setupEvents = () => {
 
   window.addEventListener('scroll', () => {
     updateActiveNav();
-    const heroBottom = document.getElementById('home').getBoundingClientRect().bottom;
+    const heroBottom = homeSection?.getBoundingClientRect().bottom ?? Number.POSITIVE_INFINITY;
     floatingOrderButton?.classList.toggle('is-visible', heroBottom < window.innerHeight * 0.4);
   }, { passive: true });
 
