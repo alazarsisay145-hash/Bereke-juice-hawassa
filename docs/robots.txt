@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://alazarsisay145-hash.github.io/Bereke-juice-hawassa/sitemap.xml
