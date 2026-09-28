@@ -114,8 +114,7 @@ const state = {
   quantity: 1,
   modalProductId: null,
   cart: [],
-  toastTimer: null,
-  focusReturn: null
+  toastTimer: null
 };
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -150,8 +149,13 @@ const cartTotal = document.querySelector('[data-cart-total]');
 const cartCountNodes = document.querySelectorAll('[data-cart-count]');
 const checkoutToggle = document.querySelector('.cart-checkout-toggle');
 const notifyForm = document.querySelector('.notify-form');
-const checkoutForm = document.getElementById('checkout-panel');
+const checkoutForm = document.querySelector('form[data-checkout-form]');
 const preloader = document.querySelector('.preloader');
+const focusReturnTargets = {
+  modal: null,
+  cart: null,
+  mobile: null
+};
 
 const formatETB = (value) => `ETB ${value.toLocaleString()}`;
 
@@ -213,6 +217,57 @@ const setCheckoutOpen = (isOpen) => {
   checkoutToggle.setAttribute('aria-expanded', String(isOpen));
 };
 
+const buildMenuCard = (product, isEntering = false) => {
+  const card = document.createElement('article');
+  card.className = `menu-card${isEntering ? ' is-entering' : ''}`;
+  card.dataset.productId = product.id;
+
+  const media = document.createElement('div');
+  media.className = 'menu-card__media';
+  const image = document.createElement('img');
+  image.src = product.image;
+  image.alt = `${product.name} at Bereket Juice & Salad`;
+  image.loading = 'lazy';
+  media.append(image);
+
+  const body = document.createElement('div');
+  body.className = 'menu-card__body';
+
+  const top = document.createElement('div');
+  top.className = 'menu-card__top';
+  const meta = document.createElement('div');
+  meta.className = 'menu-card__meta';
+  const label = document.createElement('span');
+  label.textContent = product.label;
+  const title = document.createElement('h3');
+  title.textContent = product.name;
+  meta.append(label, title);
+  const price = document.createElement('strong');
+  price.textContent = formatETB(product.price);
+  top.append(meta, price);
+
+  const description = document.createElement('p');
+  description.textContent = product.description;
+
+  const footer = document.createElement('div');
+  footer.className = 'menu-card__footer';
+  const quickView = document.createElement('button');
+  quickView.className = 'order-mini';
+  quickView.type = 'button';
+  quickView.dataset.openProduct = product.id;
+  quickView.textContent = 'Quick View';
+  const addButton = document.createElement('button');
+  addButton.className = 'button button--secondary';
+  addButton.type = 'button';
+  addButton.dataset.addDirect = product.id;
+  addButton.textContent = 'Add to Cart';
+  footer.append(quickView, addButton);
+
+  body.append(top, description, footer);
+  card.append(media, body);
+  return card;
+};
+
 const renderMenu = (withAnimation = false) => {
   const items = getVisibleProducts();
   const previousHeight = menuGrid.offsetHeight;
@@ -221,30 +276,11 @@ const renderMenu = (withAnimation = false) => {
     menuGrid.classList.add('is-filtering');
   }
 
-  const markup = items.map((product) => `
-    <article class="menu-card ${withAnimation ? 'is-entering' : ''}" data-product-id="${product.id}">
-      <div class="menu-card__media">
-        <img src="${product.image}" alt="${product.name} at Bereket Juice & Salad" loading="lazy" />
-      </div>
-      <div class="menu-card__body">
-        <div class="menu-card__top">
-          <div class="menu-card__meta">
-            <span>${product.label}</span>
-            <h3>${product.name}</h3>
-          </div>
-          <strong>${formatETB(product.price)}</strong>
-        </div>
-        <p>${product.description}</p>
-        <div class="menu-card__footer">
-          <button class="order-mini" type="button" data-open-product="${product.id}">Quick View</button>
-          <button class="button button--secondary" type="button" data-add-direct="${product.id}">Add to Cart</button>
-        </div>
-      </div>
-    </article>
-  `).join('');
-
   const swapContent = () => {
-    menuGrid.innerHTML = markup;
+    menuGrid.replaceChildren();
+    items.forEach((product) => {
+      menuGrid.append(buildMenuCard(product, withAnimation));
+    });
     requestAnimationFrame(() => {
       const cards = Array.from(menuGrid.querySelectorAll('.menu-card'));
       cards.forEach((card, index) => {
@@ -367,7 +403,7 @@ const openProductModal = (productId, trigger) => {
   if (!product) return;
   state.modalProductId = productId;
   state.quantity = 1;
-  state.focusReturn = trigger || document.activeElement;
+  focusReturnTargets.modal = trigger || document.activeElement;
   modalImage.src = product.image;
   modalImage.alt = `${product.name} close-up`;
   modalCategory.textContent = product.label;
@@ -388,22 +424,22 @@ const closeProductModal = () => {
   if (!cartDrawer.classList.contains('is-open') && !mobileDrawer.classList.contains('is-open')) {
     document.body.classList.remove('no-scroll');
   }
-  state.focusReturn?.focus?.();
+  focusReturnTargets.modal?.focus?.();
 };
 
-const togglePanel = (panel, overlay, trigger, open) => {
+const togglePanel = (panel, overlay, trigger, focusKey, open) => {
   const shouldOpen = open ?? !panel.classList.contains('is-open');
   panel.classList.toggle('is-open', shouldOpen);
   overlay?.classList.toggle('is-visible', shouldOpen);
   panel.setAttribute('aria-hidden', String(!shouldOpen));
   trigger?.setAttribute('aria-expanded', String(shouldOpen));
   if (shouldOpen) {
-    state.focusReturn = document.activeElement;
+    focusReturnTargets[focusKey] = document.activeElement;
     document.body.classList.add('no-scroll');
     panel.querySelector('button, a, input')?.focus();
   } else if (!productModal.classList.contains('is-open') && !cartDrawer.classList.contains('is-open') && !mobileDrawer.classList.contains('is-open')) {
     document.body.classList.remove('no-scroll');
-    state.focusReturn?.focus?.();
+    focusReturnTargets[focusKey]?.focus?.();
   }
 };
 
@@ -554,15 +590,15 @@ const setupEvents = () => {
     updateCartUI();
   });
 
-  cartTrigger.addEventListener('click', () => togglePanel(cartDrawer, cartOverlay, cartTrigger, true));
-  document.querySelector('[data-close-cart]').addEventListener('click', () => togglePanel(cartDrawer, cartOverlay, cartTrigger, false));
-  cartOverlay.addEventListener('click', () => togglePanel(cartDrawer, cartOverlay, cartTrigger, false));
+  cartTrigger.addEventListener('click', () => togglePanel(cartDrawer, cartOverlay, cartTrigger, 'cart', true));
+  document.querySelector('[data-close-cart]').addEventListener('click', () => togglePanel(cartDrawer, cartOverlay, cartTrigger, 'cart', false));
+  cartOverlay.addEventListener('click', () => togglePanel(cartDrawer, cartOverlay, cartTrigger, 'cart', false));
 
-  navToggle?.addEventListener('click', () => togglePanel(mobileDrawer, mobileOverlay, navToggle));
-  document.querySelector('[data-close-mobile]').addEventListener('click', () => togglePanel(mobileDrawer, mobileOverlay, navToggle, false));
-  mobileOverlay.addEventListener('click', () => togglePanel(mobileDrawer, mobileOverlay, navToggle, false));
+  navToggle?.addEventListener('click', () => togglePanel(mobileDrawer, mobileOverlay, navToggle, 'mobile'));
+  document.querySelector('[data-close-mobile]').addEventListener('click', () => togglePanel(mobileDrawer, mobileOverlay, navToggle, 'mobile', false));
+  mobileOverlay.addEventListener('click', () => togglePanel(mobileDrawer, mobileOverlay, navToggle, 'mobile', false));
   document.querySelectorAll('.mobile-link').forEach((link) => {
-    link.addEventListener('click', () => togglePanel(mobileDrawer, mobileOverlay, navToggle, false));
+    link.addEventListener('click', () => togglePanel(mobileDrawer, mobileOverlay, navToggle, 'mobile', false));
   });
 
   checkoutToggle.addEventListener('click', () => {
@@ -591,8 +627,8 @@ const setupEvents = () => {
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
       if (productModal.classList.contains('is-open')) closeProductModal();
-      if (cartDrawer.classList.contains('is-open')) togglePanel(cartDrawer, cartOverlay, cartTrigger, false);
-      if (mobileDrawer.classList.contains('is-open')) togglePanel(mobileDrawer, mobileOverlay, navToggle, false);
+      if (cartDrawer.classList.contains('is-open')) togglePanel(cartDrawer, cartOverlay, cartTrigger, 'cart', false);
+      if (mobileDrawer.classList.contains('is-open')) togglePanel(mobileDrawer, mobileOverlay, navToggle, 'mobile', false);
     }
 
     const openDialog = [productModal, cartDrawer, mobileDrawer].find((element) => element.classList.contains('is-open'));
