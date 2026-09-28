@@ -1358,7 +1358,7 @@ body.loaded .hero__visual {
   }
 
   .menu-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .about-cards {
@@ -1369,6 +1369,12 @@ body.loaded .hero__visual {
     grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
     min-height: min(46rem, calc(100vh - 6rem));
     gap: 1.8rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .menu-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
