@@ -158,7 +158,6 @@ function formatPrice(value) {
 }
 
 function renderMenu() {
-  menuGrid.classList.add('is-switching');
   const items = menuItems.filter((item) => item.category === state.activeCategory);
   const markup = items.map((item, index) => `
     <article class="menu-card glass-panel reveal is-visible" style="transition-delay:${Math.min(index * 70, 280)}ms">
@@ -342,6 +341,7 @@ function renderCart() {
 }
 
 function animateCartTrigger() {
+  if (typeof cartTrigger.animate !== 'function') return;
   cartTrigger.animate(
     [
       { transform: 'scale(1)' },
@@ -426,7 +426,9 @@ function initForms() {
     }
     notifyForm.reset();
     setMessage(notifyMessage, 'Thanks! We will let you know when the guest house officially opens.', 'is-success');
-    notifyMessage.animate([{ transform: 'scale(0.96)' }, { transform: 'scale(1)' }], { duration: 260, easing: 'ease-out' });
+    if (typeof notifyMessage.animate === 'function') {
+      notifyMessage.animate([{ transform: 'scale(0.96)' }, { transform: 'scale(1)' }], { duration: 260, easing: 'ease-out' });
+    }
   });
 
   checkoutForm.addEventListener('submit', (event) => {
