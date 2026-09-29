@@ -129,6 +129,10 @@ async function testAddDecrementRemoveAndOverlayExclusivity() {
     const quickView = document.querySelector('[data-open-product="mango-juice"]');
     const cartTrigger = document.querySelector('.cart-trigger');
     const navToggle = document.querySelector('.nav-toggle');
+    const mobileDrawer = document.getElementById('mobile-drawer');
+    const cartDrawer = document.getElementById('cart-drawer');
+    assert.equal(mobileDrawer.hasAttribute('inert'), true, 'closed mobile menu is not keyboard reachable');
+    assert.equal(cartDrawer.hasAttribute('inert'), true, 'closed cart is not keyboard reachable');
 
     click(window, addMango);
     click(window, addSpris);
@@ -141,6 +145,7 @@ async function testAddDecrementRemoveAndOverlayExclusivity() {
     await wait(10);
 
     assert.equal(document.getElementById('cart-drawer').classList.contains('is-open'), true, 'cart opens');
+    assert.equal(cartDrawer.hasAttribute('inert'), false, 'open cart is keyboard reachable');
 
     click(window, document.querySelector('[data-remove-item="spris"]'));
     await wait(10);
@@ -159,10 +164,17 @@ async function testAddDecrementRemoveAndOverlayExclusivity() {
 
     assert.equal(document.getElementById('cart-drawer').classList.contains('is-open'), false, 'opening mobile nav closes cart');
     assert.equal(document.getElementById('mobile-drawer').classList.contains('is-open'), true, 'mobile nav opens');
+    assert.equal(cartDrawer.hasAttribute('inert'), true, 'closed cart becomes inert');
+    assert.equal(mobileDrawer.hasAttribute('inert'), false, 'open mobile menu is keyboard reachable');
+    assert.equal(navToggle.getAttribute('aria-expanded'), 'true');
+    assert.equal(navToggle.getAttribute('aria-label'), 'Close menu');
 
-    click(window, document.querySelector('[data-close-mobile]'));
+    document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     await wait(10);
-    assert.equal(document.activeElement, navToggle, 'closing mobile nav returns focus to the trigger');
+    assert.equal(mobileDrawer.hasAttribute('inert'), true, 'Escape makes the closed menu inert');
+    assert.equal(navToggle.getAttribute('aria-expanded'), 'false');
+    assert.equal(navToggle.getAttribute('aria-label'), 'Open menu');
+    assert.equal(document.activeElement, navToggle, 'Escape returns focus to the menu trigger');
 
     quickView.focus();
     click(window, quickView);
@@ -234,12 +246,28 @@ async function testHydratedContactLinks() {
   }
 }
 
+async function testResponsiveImageMarkup() {
+  const app = await bootApp();
+  try {
+    const { document } = app;
+    assert.equal(document.querySelector('meta[name="viewport"]').content, 'width=device-width, initial-scale=1.0');
+    for (const image of document.querySelectorAll('img')) {
+      assert.ok(image.hasAttribute('alt'), 'every image has alternative text');
+      assert.ok(image.width > 0 && image.height > 0, 'every image reserves its dimensions');
+      assert.ok(image.getAttribute('loading') === 'lazy' || image.closest('.brand') || image.closest('.hero-card'), 'below-the-fold images load lazily');
+    }
+  } finally {
+    app.close();
+  }
+}
+
 async function main() {
   await testValidPersistedCart();
   await testInvalidPersistedCart();
   await testAddDecrementRemoveAndOverlayExclusivity();
   await testWhatsAppCheckoutFlow();
   await testHydratedContactLinks();
+  await testResponsiveImageMarkup();
   console.log('Smoke test passed.');
 }
 

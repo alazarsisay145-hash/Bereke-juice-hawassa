@@ -348,7 +348,7 @@ const buildMenuCard = (product, isEntering = false) => {
   media.className = 'menu-card__media';
 
   const image = document.createElement('img');
-  image.loading = 'lazy';
+  image.setAttribute('loading', 'lazy');
   image.decoding = 'async';
   image.width = 900;
   image.height = 675;
@@ -482,7 +482,7 @@ const updateCartUI = () => {
     const image = document.createElement('img');
     image.width = 120;
     image.height = 90;
-    image.loading = 'lazy';
+    image.setAttribute('loading', 'lazy');
     image.decoding = 'async';
     setProductImage(image, product, `${item.name} in cart`);
     media.append(image);
@@ -607,8 +607,10 @@ const closePanelState = (panel, overlay, trigger) => {
   if (!panel) return;
   panel.classList.remove('is-open');
   panel.setAttribute('aria-hidden', 'true');
+  panel.setAttribute('inert', '');
   overlay?.classList.remove('is-visible');
   trigger?.setAttribute('aria-expanded', 'false');
+  if (trigger === navToggle) trigger.setAttribute('aria-label', 'Open menu');
 };
 
 const closeOtherPanels = (activePanel) => {
@@ -634,7 +636,9 @@ const togglePanel = (panel, overlay, trigger, focusKey, open) => {
   panel.classList.toggle('is-open', shouldOpen);
   overlay?.classList.toggle('is-visible', shouldOpen);
   panel.setAttribute('aria-hidden', String(!shouldOpen));
+  panel.toggleAttribute('inert', !shouldOpen);
   trigger?.setAttribute('aria-expanded', String(shouldOpen));
+  if (trigger === navToggle) trigger.setAttribute('aria-label', shouldOpen ? 'Close menu' : 'Open menu');
 
   if (shouldOpen) {
     focusReturnTargets[focusKey] = trigger || getActiveElement();
